@@ -10,25 +10,25 @@
     {
       "id": "private-downloads-page",
       "title": "A private downloads page for every order",
-      "description": "Buyers get an email after paying with a link to their files, links and license keys. Opening the page never uses up a download, and each file opens through a link that expires after 5 minutes.",
+      "description": "Buyers get an email with every file, link and key they bought. Viewing the page never uses a download, and files open via 5-minute links.",
       "image_src": "assets/screenshots/1-private-downloads-page.png"
     },
     {
       "id": "files-links-and-keys",
-      "title": "Files, links and license keys on any product",
-      "description": "Upload files into your own Amazon S3, Cloudflare R2, Backblaze B2 or Wasabi bucket from the product page, or link to any https address. Set download limits and an access period for each product.",
+      "title": "Files, links and keys on any product",
+      "description": "Upload into your own S3, R2, B2 or Wasabi bucket, or link to any https page. Set download limits and an access period for each product.",
       "image_src": "assets/screenshots/2-files-links-and-keys.png"
     },
     {
       "id": "control-every-order",
       "title": "Stay in control of every order",
-      "description": "Resend the downloads email, reset download counts, extend access or revoke it from the order's Actions menu. Cancellations and full refunds revoke access automatically.",
+      "description": "Resend the downloads email, reset counts, or extend or revoke access from the order. Cancellations and full refunds revoke access too.",
       "image_src": "assets/screenshots/3-control-every-order.png"
     },
     {
       "id": "license-keys",
       "title": "License keys your software can check",
-      "description": "Generate a key for each purchase or sell keys you import, with activation limits and expiry. A license API validates, activates and deactivates keys, and orders stop when imported keys run out.",
+      "description": "Generate keys or sell your own, with activation limits and expiry. Orders stop when imported keys run out, and an API checks each key.",
       "image_src": "assets/screenshots/4-license-keys.png"
     }
   ]
