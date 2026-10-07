@@ -76,6 +76,8 @@ export interface Grant {
   product_id: string;
   variant_id?: string | null;
   subscription_id?: string | null;
+  /** Secret in the order's downloads link, the same on every grant of the order */
+  access_token?: string | null;
   quantity?: number;
   status: GrantStatus;
   reason?: string | null;

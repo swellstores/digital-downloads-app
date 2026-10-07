@@ -36,6 +36,6 @@ export default async function (req: SwellRequest) {
   }
 
   return {
-    message: `Connected. Uploads go to ${bucket.name}/${bucket.prefix}. The uploader also needs a CORS rule allowing PUT from your dashboard and exposing the ETag header.`,
+    message: `Connected. Uploads go to ${bucket.name}/${bucket.prefix}. The uploader also needs a CORS rule allowing PUT from its address and exposing the ETag header. If the rule is missing, the uploader shows the address to add.`,
   };
 }

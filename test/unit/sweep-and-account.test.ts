@@ -30,7 +30,7 @@ describe("notify-sweep", () => {
     expect(emailed).not.toContain(`${PATHS.grants}/${revoked.grant.id}`);
     expect(fake.notifications[0]).toMatchObject({
       id: `${APP_ID}.file-updated`,
-      data: { product_name: "Presets", message: "v2 is out", downloads_url: `https://example.com/d/${buyers[0].order.id}` },
+      data: { product_name: "Presets", message: "v2 is out", downloads_url: expect.stringContaining(`/downloads?order=${buyers[0].order.id}&token=`) },
     });
 
     for (const { grant } of buyers) {
@@ -73,7 +73,6 @@ describe("account-downloads", () => {
     const fake = createFakeSwell();
     const { product } = seedProduct(fake, { deliverables: [{ name: "Ebook", url: "https://example.com/e" }] });
     const mine = seedGrantedOrder(fake, product.id);
-    fake.find("/orders", mine.order.id)!.$app[APP_ID].downloads_url = "https://example.com/mine";
     fake.seed(PATHS.keys, { key: "MY-KEY", product_id: product.id, source: "generated", status: "assigned", grant_id: mine.grant.id, order_id: mine.order.id });
     seedGrantedOrder(fake, product.id);
 
@@ -85,7 +84,7 @@ describe("account-downloads", () => {
       orders: [
         {
           id: mine.order.id,
-          downloads_url: "https://example.com/mine",
+          downloads_url: expect.stringContaining(`/downloads?order=${mine.order.id}&token=${mine.token}`),
           items: [
             {
               product_name: "Photo Course",

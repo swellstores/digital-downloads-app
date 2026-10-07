@@ -50,6 +50,16 @@ describe("downloads page", () => {
     expect(html).not.toContain(LINK_URL);
   });
 
+  it("still opens when another app's order write dropped this app's order fields", async () => {
+    const { fake, order, token, grant } = setup();
+    fake.find(PATHS.grants, grant.id)!.access_token = token;
+    delete fake.find("/orders", order.id)!.$app;
+
+    const response = (await get(request(fake, { method: "GET", data: { order: order.id, token } }))) as Response;
+
+    expect(response.status).toBe(200);
+  });
+
   it("doesn't count page views", async () => {
     const { fake, order, token, grant } = setup({ download_limit: 1 });
 

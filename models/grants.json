@@ -47,6 +47,11 @@
       "model": "subscriptions",
       "key": "subscription_id"
     },
+    "access_token": {
+      "type": "string",
+      "private": true,
+      "description": "Secret in the order's downloads link, kept here because only this app writes grants. Every grant of an order has the same token"
+    },
     "quantity": {
       "type": "int",
       "default": 1

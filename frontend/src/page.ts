@@ -177,7 +177,7 @@ li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:
         }
         resolve(etag);
       };
-      xhr.onerror = function () { reject(new Error("Couldn't reach the bucket. Check its CORS rules allow PUT from this page.")); };
+      xhr.onerror = function () { reject(new Error("Couldn't reach the bucket. Add a CORS rule to it that allows PUT from " + location.origin + " and exposes the ETag header.")); };
       xhr.onabort = function () { reject(new Error("Canceled")); };
       upload.requests.push(xhr);
       xhr.send(blob);

@@ -44,6 +44,7 @@ describe("grant-access", () => {
     const access = fake.find("/orders", order.id)!.$app[APP_ID];
     expect(access.access_status).toBe("granted");
     expect(access.access_token).toMatch(/^[A-Za-z0-9_-]{32}$/);
+    expect(fake.find(PATHS.grants, grant.id)!.access_token).toBe(access.access_token);
     expect(access.downloads_url).toBe(
       `https://test-store.swell.store/functions/${APP_OBJECT_ID}/downloads?order=${order.id}&token=${access.access_token}`,
     );
@@ -64,6 +65,18 @@ describe("grant-access", () => {
         ],
       },
     });
+  });
+
+  it("keeps the grants' token when the order's copy was lost", async () => {
+    const { fake, product } = setup();
+    const order = seedOrder(fake, [{ product_id: product.id }]);
+
+    await paid(fake, order);
+    const token = fake.all(PATHS.grants)[0].access_token;
+    delete fake.find("/orders", order.id)!.$app;
+    await paid(fake, order);
+
+    expect(fake.find("/orders", order.id)!.$app[APP_ID].access_token).toBe(token);
   });
 
   it("uses the app defaults when the product doesn't override them", async () => {

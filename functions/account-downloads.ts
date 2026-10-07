@@ -1,4 +1,5 @@
-import { describeGrants, listGrants, orderAccess } from "./lib/grants";
+import { accessToken, describeGrants, listGrants } from "./lib/grants";
+import { downloadsUrl, functionsBaseUrl } from "./lib/links";
 import type { Order, Page } from "./lib/types";
 
 export const config: SwellConfig = {
@@ -38,7 +39,7 @@ export async function get(req: SwellRequest) {
   });
 
   const orders = new Map((page?.results ?? []).map((order) => [order.id, order]));
-  const items = await describeGrants(req, grants, orders);
+  const [items, linkBase] = await Promise.all([describeGrants(req, grants, orders), functionsBaseUrl(req)]);
 
   return {
     orders: orderIds
@@ -48,7 +49,9 @@ export async function get(req: SwellRequest) {
         id: order.id,
         number: order.number ?? null,
         date_created: order.date_created ?? null,
-        downloads_url: orderAccess(req, order).downloads_url ?? null,
+        downloads_url: ((token) => (token ? downloadsUrl(linkBase, order.id, token) : null))(
+          accessToken(req, order, grants.filter((grant) => grant.order_id === order.id)),
+        ),
         items: items
           .filter((item) => item.grant.order_id === order.id)
           .map((item) => ({

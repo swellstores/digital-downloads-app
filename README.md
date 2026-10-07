@@ -21,7 +21,7 @@ The app adds no storefront of its own and needs none. The downloads page and ema
 Uploaded files go straight from your browser to your own S3-compatible bucket: Amazon S3, Cloudflare R2, Backblaze B2 or Wasabi. Nothing passes through Swell, so file size isn't limited. Cloudflare R2 is the cheapest choice for downloads because it doesn't charge for them.
 
 1. Create a bucket, and an access key that can only reach one folder of it, allowing `PutObject`, `GetObject`, `AbortMultipartUpload` and `ListMultipartUploadParts`.
-2. Add a CORS rule to the bucket that allows `PUT` from your dashboard (`https://<store-id>.swell.store`) and exposes the `ETag` header.
+2. Add a CORS rule to the bucket that allows `PUT` from the uploader's address and exposes the `ETag` header. The uploader runs on its own address, like `https://<store-id>--<id>--app.swell.store`. Open **Actions → Upload files** on a product and try an upload; if the rule is missing, the uploader shows the exact address to add.
 3. Fill in **File storage** in the app settings: the endpoint (leave it empty for Amazon S3), region, bucket, folder and access key. Save, then choose **Actions → Test connection**.
 
 The settings page masks the secret key, but your admins can show it, so use a key limited to that folder.

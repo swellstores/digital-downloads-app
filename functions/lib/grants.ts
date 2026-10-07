@@ -53,6 +53,26 @@ export function orderAccess(req: SwellRequest, order: Order): OrderAppValues {
   return order.$app?.[req.appId!] ?? {};
 }
 
+/**
+ * The order's downloads link token. Grants hold it because another app's
+ * order write can race with ours and drop this app's order fields; the copy on
+ * the order is only a convenience for themes. Orders granted before grants held
+ * the token fall back to the order's copy.
+ */
+export function accessToken(req: SwellRequest, order: Order | null, grants: Grant[]): string | null {
+  return grants.find((grant) => grant.access_token)?.access_token ?? (order ? orderAccess(req, order).access_token ?? null : null);
+}
+
+/** The order's downloads page, built from the token so it doesn't depend on the order's copy. */
+export async function orderDownloadsUrl(
+  req: SwellRequest,
+  orderId: string,
+  token: string,
+  appObjectId?: string | null,
+): Promise<string> {
+  return downloadsUrl(await functionsBaseUrl(req, appObjectId), orderId, token);
+}
+
 export interface GrantResult {
   grants: Grant[];
   keysMissing: number;
@@ -104,6 +124,7 @@ export async function grantOrder(
   const subscriptions = await loadSubscriptions(req, order, digitalItems, catalog);
 
   const now = new Date();
+  const token = accessToken(req, order, existing) ?? randomToken();
   const poolUse = new Map<string, PoolUse>();
   let keysMissing = 0;
 
@@ -136,6 +157,7 @@ export async function grantOrder(
         product_id: item.product_id,
         variant_id: item.variant_id ?? null,
         subscription_id: subscription?.id ?? null,
+        access_token: token,
         quantity: item.quantity,
         status: "active",
         download_limit: config.download_limit ?? settings.delivery.download_limit ?? null,
@@ -176,6 +198,16 @@ export async function grantOrder(
     return null;
   }
 
+  // Grants made before grants held the token get the order's
+  await Promise.all(
+    grants
+      .filter((grant) => grant.access_token !== token)
+      .map(async (grant) => {
+        await req.swell.put(`${grantsPath(req)}/${grant.id}`, { access_token: token });
+        grant.access_token = token;
+      }),
+  );
+
   // Re-running on an order whose access was revoked keeps it revoked
   const accessStatus = grants.some((grant) => grant.status !== "revoked") ? "granted" : "revoked";
   const notify =
@@ -187,6 +219,7 @@ export async function grantOrder(
     writeOrderAccess(
       req,
       order,
+      token,
       { access_status: accessStatus, keys_missing: keysMissing || null },
       settings.id,
       notify ? { grants, catalog } : undefined,
@@ -251,9 +284,9 @@ function subscriptionFor(
 }
 
 /**
- * Writes the order's access token and downloads link, creating the token the
- * first time. The token stays the same afterwards so links in sent emails keep
- * working.
+ * Writes the order's copy of the access token and its downloads link. The
+ * token comes from the order's grants and stays the same, so links in sent
+ * emails keep working.
  *
  * With `email`, the "downloads ready" email goes out in the same write. Order
  * writes are expensive (every one runs the order's formulas and other apps'
@@ -263,17 +296,17 @@ function subscriptionFor(
 export async function writeOrderAccess(
   req: SwellRequest,
   order: Order,
+  token: string,
   values: Partial<OrderAppValues>,
   appObjectId?: string | null,
   email?: { grants: Grant[]; catalog: Map<string, CatalogEntry> },
 ): Promise<OrderAppValues> {
   const current = orderAccess(req, order);
-  const token = current.access_token || randomToken();
   const now = new Date().toISOString();
 
   const next: OrderAppValues = {
     access_token: token,
-    downloads_url: downloadsUrl(await functionsBaseUrl(req, appObjectId), order.id, token),
+    downloads_url: await orderDownloadsUrl(req, order.id, token, appObjectId),
     date_granted: current.date_granted ?? now,
     ...values,
     ...(email ? { date_notified: now } : {}),

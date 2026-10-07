@@ -5,7 +5,7 @@ import {
   isSafeLink,
 } from "./lib/access";
 import { loadCatalog } from "./lib/catalog";
-import { describeOrder, getOrder, grantsPath, orderAccess } from "./lib/grants";
+import { accessToken, describeOrder, getOrder, grantsPath, listGrants } from "./lib/grants";
 import { htmlResponse, renderDownloadsPage, renderMessagePage } from "./lib/html";
 import { openBucket, presignDownload } from "./lib/s3";
 import { getSettings } from "./lib/settings";
@@ -103,8 +103,11 @@ async function authorize(req: SwellRequest, input: Record<string, any>): Promise
     return null;
   }
 
-  const order = await getOrder(req, orderId);
-  const expected = order ? orderAccess(req, order).access_token : null;
+  const [order, grants] = await Promise.all([
+    getOrder(req, orderId),
+    listGrants(req, { order_id: orderId }, 1),
+  ]);
+  const expected = accessToken(req, order, grants);
 
   return order && expected && safeEqual(token, expected) ? order : null;
 }

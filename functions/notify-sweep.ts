@@ -1,4 +1,5 @@
-import { grantsPath, listGrants, orderAccess } from "./lib/grants";
+import { accessToken, grantsPath, listGrants } from "./lib/grants";
+import { downloadsUrl as buildDownloadsUrl, functionsBaseUrl } from "./lib/links";
 import type { Order, Page, Product } from "./lib/types";
 
 export const config: SwellConfig = {
@@ -65,6 +66,7 @@ export default async function (req: SwellRequest) {
 
   const ordersById = new Map((orders?.results ?? []).map((order) => [order.id, order]));
   const emailed = new Set<string>();
+  const linkBase = await functionsBaseUrl(req);
   const now = new Date().toISOString();
   let lastGrantId = job.last_grant_id ?? null;
   let processed = 0;
@@ -75,8 +77,8 @@ export default async function (req: SwellRequest) {
 
     await Promise.all(
       chunk.map(async (grant) => {
-        const order = ordersById.get(grant.order_id);
-        const downloadsUrl = order ? orderAccess(req, order).downloads_url : null;
+        const token = accessToken(req, ordersById.get(grant.order_id) ?? null, [grant]);
+        const downloadsUrl = token ? buildDownloadsUrl(linkBase, grant.order_id, token) : null;
 
         // One email per order, even when it has several items of the product
         const email = Boolean(downloadsUrl) && !emailed.has(grant.order_id);
