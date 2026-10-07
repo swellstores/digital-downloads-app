@@ -18,5 +18,9 @@
   ],
   "dependencies": {
     "aws4fetch": "^1.0.20"
+  },
+  "overrides": {
+    "sharp": "^0.35.5",
+    "undici": "^7.29.1"
   }
 }

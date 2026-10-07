@@ -24,6 +24,7 @@ swell app push
 ```
 
 - `--legacy-peer-deps` works around an npm resolver bug with Vitest's optional peer dependencies.
+- `overrides` in package.json moves sharp and undici, which miniflare pins, to versions with security fixes. Remove them once miniflare depends on those versions.
 - Deploying the uploader needs `wrangler login` and `CLOUDFLARE_ACCOUNT_ID`.
 - Deploy the uploader with a full `swell app push`, adding `--force` if only frontend files changed. The dashboard routes to the deployment the CLI records, so `wrangler deploy` on its own, or `swell app push frontend`, leaves it serving the old version.
 - After changing only files in `functions/lib/`, push with `swell app push functions --force`. The CLI only notices changes to top-level function files.
