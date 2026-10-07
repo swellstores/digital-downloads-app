@@ -1,0 +1,89 @@
+{
+  "description": "Download access for one digital order item. Created when the order is paid; checked on every download.",
+  "label": "Download access",
+  "plural": "Download access",
+  "fields": {
+    "order_id": {
+      "type": "objectid",
+      "required": true
+    },
+    "order": {
+      "type": "link",
+      "model": "orders",
+      "key": "order_id"
+    },
+    "item_id": {
+      "type": "objectid",
+      "required": true,
+      "unique": "order_id",
+      "description": "Order item this access is for. One grant per item"
+    },
+    "account_id": {
+      "type": "objectid"
+    },
+    "account": {
+      "type": "link",
+      "model": "accounts",
+      "key": "account_id"
+    },
+    "product_id": {
+      "type": "objectid",
+      "required": true
+    },
+    "product": {
+      "type": "link",
+      "model": "products",
+      "key": "product_id"
+    },
+    "variant_id": {
+      "type": "objectid"
+    },
+    "subscription_id": {
+      "type": "objectid",
+      "description": "Set for subscription products. Access follows the subscription's status"
+    },
+    "subscription": {
+      "type": "link",
+      "model": "subscriptions",
+      "key": "subscription_id"
+    },
+    "quantity": {
+      "type": "int",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "revoked"
+      ],
+      "default": "active",
+      "required": true,
+      "description": "suspended: the subscription is paused or canceled. revoked: the order was canceled or refunded, or an admin removed access"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Why access was suspended or revoked"
+    },
+    "download_counts": {
+      "type": "object",
+      "description": "Downloads so far, keyed by deliverable id"
+    },
+    "download_limit": {
+      "type": "int",
+      "description": "Downloads allowed per deliverable, copied from the product or app settings at purchase. Empty means unlimited"
+    },
+    "date_expires": {
+      "type": "date",
+      "description": "Downloads stop after this date. Empty means never"
+    },
+    "date_last_download": {
+      "type": "date"
+    },
+    "date_update_notified": {
+      "type": "date",
+      "description": "When the buyer was last emailed about a product update"
+    }
+  }
+}

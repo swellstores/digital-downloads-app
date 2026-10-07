@@ -1,0 +1,31 @@
+{
+  "description": "Digital delivery state for an order. Written by the app under $app.digital_downloads.",
+  "fields": {
+    "access_token": {
+      "type": "string",
+      "private": true,
+      "description": "Secret in the order's downloads link. Replacing it makes the old link stop working"
+    },
+    "downloads_url": {
+      "type": "string",
+      "public": true,
+      "description": "The order's downloads page. Readable by the customer who placed the order"
+    },
+    "access_status": {
+      "type": "string",
+      "enum": ["granted", "revoked"],
+      "description": "granted once the buyer has access, revoked after a cancellation, refund or admin action"
+    },
+    "date_granted": {
+      "type": "date"
+    },
+    "date_notified": {
+      "type": "date",
+      "description": "When the downloads email was last sent"
+    },
+    "keys_missing": {
+      "type": "int",
+      "description": "License keys the order is still owed because a key pool ran out"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "description": "Sell files, links and license keys",
+  "id": "digital_downloads",
+  "name": "Digital Downloads",
+  "type": "admin",
+  "version": "1.0.0",
+  "support_email": "support@swell.is",
+  "permissions": [],
+  "images": [
+    {
+      "id": "private-downloads-page",
+      "title": "A private downloads page for every order",
+      "description": "Buyers get an email after paying with a link to their files, links and license keys. Opening the page never uses up a download, and each file opens through a link that expires after 5 minutes.",
+      "image_src": "assets/screenshots/1-private-downloads-page.png"
+    },
+    {
+      "id": "files-links-and-keys",
+      "title": "Files, links and license keys on any product",
+      "description": "Upload files into your own Amazon S3, Cloudflare R2, Backblaze B2 or Wasabi bucket from the product page, or link to any https address. Set download limits and an access period for each product.",
+      "image_src": "assets/screenshots/2-files-links-and-keys.png"
+    },
+    {
+      "id": "control-every-order",
+      "title": "Stay in control of every order",
+      "description": "Resend the downloads email, reset download counts, extend access or revoke it from the order's Actions menu. Cancellations and full refunds revoke access automatically.",
+      "image_src": "assets/screenshots/3-control-every-order.png"
+    },
+    {
+      "id": "license-keys",
+      "title": "License keys your software can check",
+      "description": "Generate a key for each purchase or sell keys you import, with activation limits and expiry. A license API validates, activates and deactivates keys, and orders stop when imported keys run out.",
+      "image_src": "assets/screenshots/4-license-keys.png"
+    }
+  ]
+}

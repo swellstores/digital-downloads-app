@@ -1,0 +1,61 @@
+{
+  "label": "File storage",
+  "description": "Optional: connect your own S3-compatible bucket to upload files from the dashboard. Files stay private in your bucket, and every download uses a link that expires after 5 minutes. 1. Create a bucket. Cloudflare R2 is the cheapest option because it charges nothing for downloads; Amazon S3, Backblaze B2 and Wasabi also work. 2. Create an access key limited to that bucket and folder, allowing PutObject, GetObject, AbortMultipartUpload and ListMultipartUploadParts. 3. Add a CORS rule to the bucket allowing PUT from your dashboard address (https://<store-id>.swell.store) and exposing the ETag header. 4. Fill in the fields below, save, then choose Actions → Test connection.",
+  "actions": [
+    {
+      "id": "test_connection",
+      "label": "Test connection",
+      "function": "storage-test",
+      "hint": "Checks the access key by writing and reading a small test file in the folder.",
+      "loading_label": "Testing your bucket…",
+      "conditions": {
+        "bucket": {
+          "$ne": null
+        }
+      }
+    }
+  ],
+  "fields": [
+    {
+      "id": "endpoint",
+      "label": "Endpoint",
+      "type": "url",
+      "placeholder": "https://<account-id>.r2.cloudflarestorage.com",
+      "description": "The S3 API endpoint. Leave empty for Amazon S3."
+    },
+    {
+      "id": "region",
+      "label": "Region",
+      "type": "text",
+      "default": "auto",
+      "admin_span": 2,
+      "description": "For example us-east-1. Use auto for Cloudflare R2."
+    },
+    {
+      "id": "bucket",
+      "label": "Bucket",
+      "type": "text",
+      "admin_span": 2
+    },
+    {
+      "id": "prefix",
+      "label": "Folder",
+      "type": "text",
+      "default": "digital-downloads/",
+      "description": "Uploads go into this folder of the bucket. Limit your access key to it."
+    },
+    {
+      "id": "access_key_id",
+      "label": "Access key ID",
+      "type": "text",
+      "admin_span": 2
+    },
+    {
+      "id": "secret_access_key",
+      "label": "Secret access key",
+      "type": "secret",
+      "admin_span": 2,
+      "description": "Stored as plain text in your store's settings, so use a key that can only reach this bucket folder."
+    }
+  ]
+}

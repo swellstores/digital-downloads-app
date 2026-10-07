@@ -1,0 +1,97 @@
+{
+  "description": "What a buyer gets after paying for this product: files, links and license keys. Written under $app.digital_downloads.",
+  "fields": {
+    "deliverables": {
+      "type": "collection",
+      "label": "Deliverable",
+      "plural": "Deliverables",
+      "description": "Files and links a buyer can open after paying. Each keeps its id when its file or URL changes, so past buyers always get the current version.",
+      "fields": {
+        "name": {
+          "type": "string",
+          "required": true,
+          "description": "Name shown to the buyer"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["link", "bucket"],
+          "default": "link",
+          "description": "link: an external URL. bucket: a file uploaded to the store's own S3-compatible bucket"
+        },
+        "url": {
+          "type": "string",
+          "description": "Destination of a link deliverable. Must start with https://",
+          "rules": [
+            {
+              "expression": "and(source != \"bucket\", left(lower(url), 8) != \"https://\")",
+              "error": "Add the https:// link buyers should get"
+            }
+          ]
+        },
+        "object_key": {
+          "type": "string",
+          "description": "Key of the uploaded file in the bucket"
+        },
+        "filename": {
+          "type": "string",
+          "description": "File name the buyer's download is saved as"
+        },
+        "size": {
+          "type": "int",
+          "description": "Size of the uploaded file in bytes"
+        },
+        "content_type": {
+          "type": "string"
+        },
+        "variant_id": {
+          "type": "objectid",
+          "description": "The only variant that includes this deliverable. Empty means every variant"
+        },
+        "version": {
+          "type": "string",
+          "description": "Optional version label shown to buyers, e.g. 2.1"
+        }
+      }
+    },
+    "download_limit": {
+      "type": "int",
+      "min": 1,
+      "description": "Downloads allowed per deliverable for each purchase. Empty uses the app setting"
+    },
+    "access_days": {
+      "type": "int",
+      "min": 1,
+      "description": "Days after purchase that downloads stay available. Empty uses the app setting"
+    },
+    "license_enabled": {
+      "type": "bool",
+      "default": false,
+      "description": "Give each buyer a license key"
+    },
+    "license_source": {
+      "type": "string",
+      "enum": ["generate", "pool"],
+      "default": "generate",
+      "description": "generate: create a random key per purchase. pool: hand out keys you imported, and stop sales when none are left"
+    },
+    "license_pattern": {
+      "type": "string",
+      "default": "XXXXX-XXXXX-XXXXX-XXXXX",
+      "description": "Shape of generated keys. Each X becomes a random letter or digit"
+    },
+    "license_activation_limit": {
+      "type": "int",
+      "min": 1,
+      "description": "Devices or sites a key can be activated on. Empty means unlimited"
+    },
+    "date_keys_low_notified": {
+      "type": "date",
+      "description": "When admins were last warned that this product's key pool is low"
+    },
+    "license_valid_days": {
+      "type": "int",
+      "min": 1,
+      "description": "Days a key stays valid after purchase. Empty means it never expires"
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "collection": "grants",
+  "label": "Download access",
+  "description": "One row per digital order item. Change access from the order's Actions menu so license keys stay in step.",
+  "fields": [
+    {
+      "id": "order",
+      "label": "Order",
+      "type": "lookup",
+      "model": "orders",
+      "key": "order_id",
+      "readonly": true
+    },
+    {
+      "id": "product",
+      "label": "Product",
+      "type": "product_lookup",
+      "key": "product_id",
+      "readonly": true
+    },
+    {
+      "id": "account",
+      "label": "Customer",
+      "type": "customer_lookup",
+      "key": "account_id",
+      "readonly": true
+    },
+    {
+      "id": "status",
+      "label": "Status",
+      "type": "select",
+      "readonly": true,
+      "options": [
+        { "value": "active", "label": "Active" },
+        { "value": "suspended", "label": "Paused (subscription)" },
+        { "value": "revoked", "label": "Revoked" }
+      ]
+    },
+    {
+      "id": "reason",
+      "label": "Reason",
+      "type": "text",
+      "readonly": true
+    },
+    {
+      "id": "download_limit",
+      "label": "Downloads per item",
+      "type": "integer",
+      "min": 1,
+      "description": "Empty means unlimited"
+    },
+    {
+      "id": "date_expires",
+      "label": "Access until",
+      "type": "datetime",
+      "description": "Empty means downloads never expire"
+    },
+    {
+      "id": "date_last_download",
+      "label": "Last download",
+      "type": "datetime",
+      "readonly": true
+    },
+    {
+      "id": "download_counts",
+      "label": "Downloads so far",
+      "type": "json",
+      "readonly": true,
+      "description": "Counts by deliverable id"
+    }
+  ],
+  "views": [
+    {
+      "id": "list",
+      "nav": {
+        "parent": "orders",
+        "label": "Download access"
+      },
+      "fields": [
+        { "id": "order" },
+        { "id": "product" },
+        { "id": "status" },
+        { "id": "date_expires" },
+        { "id": "date_last_download" }
+      ],
+      "tabs": [
+        { "id": "active", "label": "Active", "query": { "status": "active" } },
+        { "id": "suspended", "label": "Paused", "query": { "status": "suspended" } },
+        { "id": "revoked", "label": "Revoked", "query": { "status": "revoked" } }
+      ]
+    },
+    {
+      "id": "edit",
+      "fields": [
+        {
+          "type": "field_row",
+          "fields": [{ "id": "order" }, { "id": "product" }]
+        },
+        {
+          "type": "field_row",
+          "fields": [{ "id": "account" }, { "id": "status" }]
+        },
+        { "id": "reason", "conditions": { "reason": { "$ne": null } } },
+        {
+          "type": "field_row",
+          "fields": [{ "id": "download_limit" }, { "id": "date_expires" }]
+        },
+        { "id": "date_last_download" },
+        { "id": "download_counts" }
+      ]
+    }
+  ]
+}

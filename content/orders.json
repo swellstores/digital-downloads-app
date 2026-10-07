@@ -1,0 +1,151 @@
+{
+  "collection": "orders",
+  "fields": [
+    {
+      "id": "access_status",
+      "label": "Digital access",
+      "type": "select",
+      "readonly": true,
+      "admin_span": 2,
+      "options": [
+        { "value": "granted", "label": "Granted" },
+        { "value": "revoked", "label": "Revoked" }
+      ]
+    },
+    {
+      "id": "date_granted",
+      "label": "Granted",
+      "type": "datetime",
+      "readonly": true,
+      "admin_span": 2
+    },
+    {
+      "id": "downloads_url",
+      "label": "Downloads page",
+      "type": "url",
+      "readonly": true,
+      "description": "The buyer's private link. Anyone who has it can use the downloads."
+    },
+    {
+      "id": "keys_missing",
+      "label": "License keys missing",
+      "type": "integer",
+      "readonly": true,
+      "description": "The key pool ran out before this order got all its keys. Import more keys on the product, then choose Actions → Resend downloads email."
+    },
+    {
+      "id": "grants",
+      "label": "Items",
+      "type": "collection",
+      "collection": "grants",
+      "link": {
+        "params": {
+          "order_id": "id"
+        }
+      }
+    },
+    {
+      "id": "license_keys",
+      "label": "License keys",
+      "type": "collection",
+      "collection": "license-keys",
+      "link": {
+        "params": {
+          "order_id": "id"
+        }
+      }
+    }
+  ],
+  "views": [
+    {
+      "id": "edit",
+      "tabs": [
+        {
+          "id": "digital_delivery",
+          "label": "Digital delivery",
+          "fields": [
+            {
+              "type": "field_row",
+              "fields": [{ "id": "access_status" }, { "id": "date_granted" }]
+            },
+            { "id": "downloads_url" },
+            {
+              "id": "keys_missing",
+              "conditions": {
+                "keys_missing": { "$gt": 0 }
+              }
+            },
+            { "id": "grants" },
+            { "id": "license_keys" }
+          ]
+        }
+      ],
+      "extra_actions": [
+        {
+          "id": "resend_email",
+          "label": "Resend downloads email",
+          "function": "order-actions",
+          "loading_label": "Sending…",
+          "conditions": {
+            "access_status": { "$ne": null }
+          }
+        },
+        {
+          "id": "reset_counts",
+          "label": "Reset download counts",
+          "function": "order-actions",
+          "conditions": {
+            "access_status": "granted"
+          },
+          "modal": {
+            "description": "The buyer gets their full number of downloads again."
+          }
+        },
+        {
+          "id": "extend_access",
+          "label": "Extend download access",
+          "function": "order-actions",
+          "conditions": {
+            "access_status": "granted"
+          },
+          "modal": {
+            "title": "Extend download access",
+            "submit_label": "Extend",
+            "fields": [
+              {
+                "id": "days",
+                "label": "Days to add",
+                "type": "integer",
+                "min": 1,
+                "max": 3650,
+                "default": 30,
+                "required": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "revoke_access",
+          "label": "Revoke digital access",
+          "function": "order-actions",
+          "type": "danger",
+          "conditions": {
+            "access_status": "granted"
+          },
+          "modal": {
+            "description": "The buyer's downloads stop working and their license keys stop validating. You can restore access later."
+          }
+        },
+        {
+          "id": "restore_access",
+          "label": "Restore digital access",
+          "function": "order-actions",
+          "conditions": {
+            "access_status": "revoked"
+          },
+          "modal": {}
+        }
+      ]
+    }
+  ]
+}

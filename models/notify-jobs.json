@@ -1,0 +1,44 @@
+{
+  "description": "A queued 'new version available' email to everyone who bought a product. The notify-sweep cron sends it in batches.",
+  "label": "Update email",
+  "plural": "Update emails",
+  "fields": {
+    "product_id": {
+      "type": "objectid",
+      "required": true
+    },
+    "product": {
+      "type": "link",
+      "model": "products",
+      "key": "product_id"
+    },
+    "message": {
+      "type": "string",
+      "description": "Optional note included in the email"
+    },
+    "reset_counts": {
+      "type": "bool",
+      "default": false,
+      "description": "Reset each buyer's download counts so they can download the new version"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "done"
+      ],
+      "default": "pending"
+    },
+    "last_grant_id": {
+      "type": "objectid",
+      "description": "Cursor: the last grant handled. The next batch starts after it"
+    },
+    "sent_count": {
+      "type": "int",
+      "default": 0
+    },
+    "date_completed": {
+      "type": "date"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "label": "License keys",
+  "description": "Products with license keys turned on give each buyer a key. Your software can check keys with the license API at /functions/digital_downloads/license-api.",
+  "fields": [
+    {
+      "id": "low_stock_threshold",
+      "label": "Low key warning",
+      "type": "integer",
+      "min": 0,
+      "default": 10,
+      "description": "Email store admins when a product has this many imported keys left. Sales stop when a product runs out."
+    }
+  ]
+}

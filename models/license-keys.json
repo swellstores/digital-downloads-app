@@ -1,0 +1,99 @@
+{
+  "description": "License keys. Generated keys are created at purchase; pool keys are imported ahead of time and wait as available until an order claims one.",
+  "label": "License key",
+  "plural": "License keys",
+  "name_field": "key",
+  "fields": {
+    "key": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "product_id": {
+      "type": "objectid",
+      "required": true
+    },
+    "product": {
+      "type": "link",
+      "model": "products",
+      "key": "product_id"
+    },
+    "variant_id": {
+      "type": "objectid",
+      "description": "Pool keys for one variant only. Empty means any variant of the product"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "generated",
+        "pool"
+      ],
+      "default": "pool",
+      "required": true,
+      "description": "Keys added by hand or imported are pool keys"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "assigned",
+        "revoked"
+      ],
+      "default": "available",
+      "required": true
+    },
+    "claims": {
+      "type": "int",
+      "default": 0,
+      "description": "Incremented atomically when an order claims a pool key. Only the order that raised it to 1 owns the key"
+    },
+    "order_id": {
+      "type": "objectid"
+    },
+    "order": {
+      "type": "link",
+      "model": "orders",
+      "key": "order_id"
+    },
+    "item_id": {
+      "type": "objectid"
+    },
+    "grant_id": {
+      "type": "objectid"
+    },
+    "account_id": {
+      "type": "objectid"
+    },
+    "subscription_id": {
+      "type": "objectid"
+    },
+    "activation_limit": {
+      "type": "int",
+      "description": "Empty means unlimited"
+    },
+    "activations": {
+      "type": "array",
+      "value_type": "object",
+      "fields": {
+        "instance_id": {
+          "type": "string",
+          "required": true,
+          "description": "Identifier the buyer's software sends, e.g. a machine id or site URL"
+        },
+        "name": {
+          "type": "string"
+        },
+        "date_created": {
+          "type": "date"
+        }
+      }
+    },
+    "date_assigned": {
+      "type": "date"
+    },
+    "date_expires": {
+      "type": "date",
+      "description": "The key stops validating after this date. Empty means never"
+    }
+  }
+}

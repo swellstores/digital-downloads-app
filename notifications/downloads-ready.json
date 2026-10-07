@@ -1,0 +1,43 @@
+{
+  "collection": "orders",
+  "label": "Downloads ready",
+  "description": "Sent to the buyer when a paid order includes files, links or license keys. Contains their private downloads link and keys.",
+  "method": "email",
+  "event": "updated",
+  "conditions": {
+    "id": null
+  },
+  "contact": "account.email",
+  "subject": "Your downloads from {{ store.name }} are ready",
+  "query": {
+    "expand": ["account"]
+  },
+  "fields": [
+    {
+      "id": "intro",
+      "label": "Introduction",
+      "type": "long_text",
+      "default": "Thanks for your order! Everything you bought is ready on your downloads page."
+    }
+  ],
+  "sample": {
+    "id": "5f8f8c1b2c3d4e5f60718293",
+    "number": "100042",
+    "account": {
+      "email": "buyer@example.com",
+      "first_name": "Sam"
+    },
+    "downloads_url": "https://example.swell.store/functions/5f8f8c1b2c3d4e5f60718200/downloads?order=5f8f8c1b2c3d4e5f60718293&token=sample",
+    "downloads": [
+      {
+        "product_name": "Photography Masterclass",
+        "variant_name": "Complete edition",
+        "deliverables": [
+          { "name": "Course videos", "version": null },
+          { "name": "Lightroom presets", "version": "2.1" }
+        ],
+        "license_keys": ["7KQ2M-XW9PD-3HT8N-R4VBC"]
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "description": "One row per download or link click, for the download log.",
+  "label": "Download",
+  "plural": "Download log",
+  "fields": {
+    "grant_id": {
+      "type": "objectid",
+      "required": true
+    },
+    "grant": {
+      "type": "link",
+      "model": "apps/digital_downloads/grants",
+      "key": "grant_id"
+    },
+    "order_id": {
+      "type": "objectid",
+      "required": true
+    },
+    "order": {
+      "type": "link",
+      "model": "orders",
+      "key": "order_id"
+    },
+    "product_id": {
+      "type": "objectid"
+    },
+    "deliverable_id": {
+      "type": "objectid",
+      "required": true
+    },
+    "deliverable_name": {
+      "type": "string"
+    },
+    "ip": {
+      "type": "string"
+    },
+    "user_agent": {
+      "type": "string"
+    }
+  }
+}

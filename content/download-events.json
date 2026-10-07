@@ -1,0 +1,60 @@
+{
+  "collection": "download-events",
+  "label": "Download log",
+  "description": "Every download and link click, newest first.",
+  "fields": [
+    {
+      "id": "order",
+      "label": "Order",
+      "type": "lookup",
+      "model": "orders",
+      "key": "order_id",
+      "readonly": true
+    },
+    {
+      "id": "deliverable_name",
+      "label": "Item",
+      "type": "text",
+      "readonly": true
+    },
+    {
+      "id": "ip",
+      "label": "IP address",
+      "type": "text",
+      "readonly": true
+    },
+    {
+      "id": "user_agent",
+      "label": "Browser",
+      "type": "text",
+      "readonly": true
+    }
+  ],
+  "views": [
+    {
+      "id": "list",
+      "nav": {
+        "parent": "orders",
+        "label": "Download log"
+      },
+      "sort": { "date_created": "desc" },
+      "fields": [
+        { "id": "date_created", "label": "Date" },
+        { "id": "order" },
+        { "id": "deliverable_name" },
+        { "id": "ip" }
+      ]
+    },
+    {
+      "id": "edit",
+      "fields": [
+        {
+          "type": "field_row",
+          "fields": [{ "id": "order" }, { "id": "deliverable_name" }]
+        },
+        { "id": "ip" },
+        { "id": "user_agent" }
+      ]
+    }
+  ]
+}

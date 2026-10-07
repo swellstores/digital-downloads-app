@@ -1,0 +1,19 @@
+{
+  "collection": "products",
+  "label": "License keys running low",
+  "description": "Sent to store admins when a product's imported license keys reach the warning level in the app settings, or an order is left without keys.",
+  "method": "email",
+  "admin": true,
+  "event": "updated",
+  "conditions": {
+    "id": null
+  },
+  "subject": "{% if missing > 0 %}Order {{ order_number }} is missing license keys{% else %}{{ name }} has {{ available }} license keys left{% endif %}",
+  "sample": {
+    "id": "5f8f8c1b2c3d4e5f60718111",
+    "name": "Pro Plugin",
+    "available": 3,
+    "missing": 0,
+    "order_number": null
+  }
+}

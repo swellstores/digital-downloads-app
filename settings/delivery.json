@@ -1,0 +1,22 @@
+{
+  "label": "Delivery",
+  "description": "Defaults for how long buyers can download what they bought. A product can override them on its Digital delivery tab. Changes apply to new purchases only.",
+  "fields": [
+    {
+      "id": "download_limit",
+      "label": "Downloads per item",
+      "type": "integer",
+      "min": 1,
+      "admin_span": 2,
+      "description": "How many times a buyer can download each file or open each link. Leave empty for unlimited."
+    },
+    {
+      "id": "access_days",
+      "label": "Access period (days)",
+      "type": "integer",
+      "min": 1,
+      "admin_span": 2,
+      "description": "Days after purchase that downloads stay available. Leave empty to keep them available."
+    }
+  ]
+}

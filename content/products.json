@@ -1,0 +1,212 @@
+{
+  "collection": "products",
+  "fields": [
+    {
+      "id": "deliverables",
+      "label": "Files and links",
+      "type": "collection",
+      "item_label": "name",
+      "description": "What buyers get after paying. Links go straight to their URL; to upload files, connect a bucket in the app's File storage settings, then use Actions → Upload files.",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true,
+          "admin_span": 2,
+          "description": "Shown to the buyer"
+        },
+        {
+          "id": "version",
+          "label": "Version",
+          "type": "text",
+          "admin_span": 2,
+          "placeholder": "Optional, e.g. 2.1"
+        },
+        {
+          "id": "url",
+          "label": "URL",
+          "type": "url",
+          "placeholder": "https://",
+          "description": "Dropbox, Google Drive, Vimeo, Notion or any https link. Buyers see it after clicking Open on their downloads page.",
+          "conditions": {
+            "source": { "$ne": "bucket" }
+          }
+        },
+        {
+          "id": "filename",
+          "label": "File",
+          "type": "text",
+          "readonly": true,
+          "description": "Replace it with Actions → Upload files",
+          "conditions": {
+            "source": "bucket"
+          }
+        },
+        {
+          "id": "variant",
+          "label": "Variant",
+          "type": "variant_lookup",
+          "key": "variant_id",
+          "description": "Leave empty to include this with every variant. For two variants, add a row for each."
+        }
+      ]
+    },
+    {
+      "id": "download_limit",
+      "label": "Downloads per item",
+      "type": "integer",
+      "min": 1,
+      "admin_span": 2,
+      "description": "Empty uses the app setting"
+    },
+    {
+      "id": "access_days",
+      "label": "Access period (days)",
+      "type": "integer",
+      "min": 1,
+      "admin_span": 2,
+      "description": "Empty uses the app setting. Subscription products stay available while the subscription is active."
+    },
+    {
+      "id": "license_enabled",
+      "label": "Give buyers a license key",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "id": "license_source",
+      "label": "Keys",
+      "type": "radio",
+      "default": "generate",
+      "options": [
+        { "value": "generate", "label": "Generate a random key for each purchase" },
+        { "value": "pool", "label": "Use keys I import (sales stop when none are left)" }
+      ],
+      "conditions": {
+        "license_enabled": true
+      }
+    },
+    {
+      "id": "license_pattern",
+      "label": "Key format",
+      "type": "text",
+      "default": "XXXXX-XXXXX-XXXXX-XXXXX",
+      "description": "Each X becomes a random letter or digit. Use at least 16 Xs.",
+      "conditions": {
+        "license_enabled": true,
+        "license_source": { "$ne": "pool" }
+      }
+    },
+    {
+      "id": "license_activation_limit",
+      "label": "Activations per key",
+      "type": "integer",
+      "min": 1,
+      "admin_span": 2,
+      "description": "Devices or sites a key can be activated on. Empty means unlimited.",
+      "conditions": {
+        "license_enabled": true
+      }
+    },
+    {
+      "id": "license_valid_days",
+      "label": "Key valid for (days)",
+      "type": "integer",
+      "min": 1,
+      "admin_span": 2,
+      "description": "Empty means keys never expire. Subscription keys follow the subscription.",
+      "conditions": {
+        "license_enabled": true
+      }
+    }
+  ],
+  "views": [
+    {
+      "id": "edit",
+      "tabs": [
+        {
+          "id": "digital_delivery",
+          "label": "Digital delivery",
+          "fields": [
+            { "id": "deliverables" },
+            {
+              "type": "field_row",
+              "fields": [{ "id": "download_limit" }, { "id": "access_days" }]
+            },
+            { "id": "license_enabled" },
+            { "id": "license_source" },
+            { "id": "license_pattern" },
+            {
+              "type": "field_row",
+              "fields": [{ "id": "license_activation_limit" }, { "id": "license_valid_days" }]
+            }
+          ]
+        }
+      ],
+      "extra_actions": [
+        {
+          "id": "upload_files",
+          "label": "Upload files",
+          "link": "frontend://upload/{id}",
+          "hint": "Upload files for buyers to download, into your connected bucket"
+        },
+        {
+          "id": "import_keys",
+          "label": "Import license keys",
+          "function": "product-actions",
+          "loading_label": "Importing keys…",
+          "conditions": {
+            "license_enabled": true,
+            "license_source": "pool"
+          },
+          "modal": {
+            "title": "Import license keys",
+            "description": "Paste one key per line. Keys already in the app are skipped.",
+            "submit_label": "Import",
+            "fields": [
+              {
+                "id": "keys",
+                "label": "Keys",
+                "type": "textarea",
+                "required": true
+              },
+              {
+                "id": "variant",
+                "label": "Only for variant",
+                "type": "variant_lookup",
+                "key": "variant_id",
+                "description": "Leave empty to use these keys for any variant"
+              }
+            ]
+          }
+        },
+        {
+          "id": "notify_buyers",
+          "label": "Email past buyers about an update",
+          "function": "product-actions",
+          "loading_label": "Queueing emails…",
+          "modal": {
+            "title": "Email past buyers",
+            "description": "Everyone with active access gets an email linking to their downloads page, which already has your latest files and links.",
+            "submit_label": "Send emails",
+            "fields": [
+              {
+                "id": "message",
+                "label": "Message",
+                "type": "textarea",
+                "placeholder": "Optional, e.g. what changed in this version"
+              },
+              {
+                "id": "reset_counts",
+                "label": "Reset download counts so buyers can download the new version",
+                "type": "toggle",
+                "default": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
