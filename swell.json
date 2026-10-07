@@ -1,36 +1,36 @@
 {
-  "description": "Sell files, links and license keys",
-  "id": "digital_downloads",
-  "name": "Digital Downloads",
-  "type": "admin",
-  "version": "1.0.0",
-  "support_email": "support@swell.is",
-  "price": 0,
-  "permissions": [],
-  "images": [
-    {
-      "id": "private-downloads-page",
-      "title": "A private downloads page for every order",
-      "description": "Buyers get an email with every file, link and key they bought. Viewing the page never uses a download, and files open via 5-minute links.",
-      "image_src": "assets/screenshots/1-private-downloads-page.png"
-    },
-    {
-      "id": "files-links-and-keys",
-      "title": "Files, links and keys on any product",
-      "description": "Upload into your own S3, R2, B2 or Wasabi bucket, or link to any https page. Set download limits and an access period for each product.",
-      "image_src": "assets/screenshots/2-files-links-and-keys.png"
-    },
-    {
-      "id": "control-every-order",
-      "title": "Stay in control of every order",
-      "description": "Resend the downloads email, reset counts, or extend or revoke access from the order. Cancellations and full refunds revoke access too.",
-      "image_src": "assets/screenshots/3-control-every-order.png"
-    },
-    {
-      "id": "license-keys",
-      "title": "License keys your software can check",
-      "description": "Generate keys or sell your own, with activation limits and expiry. Orders stop when imported keys run out, and an API checks each key.",
-      "image_src": "assets/screenshots/4-license-keys.png"
-    }
-  ]
+	"description": "Sell files, links and license keys",
+	"id": "digital_downloads",
+	"name": "Digital Downloads",
+	"type": "admin",
+	"version": "1.0.0",
+	"support_email": "support@swell.is",
+	"price": 0,
+	"permissions": [],
+	"images": [
+		{
+			"id": "private-downloads-page",
+			"title": "A private downloads page for every order",
+			"description": "Buyers get an email with every file, link and key they bought. Viewing the page never uses a download, and files open via 5-minute links.",
+			"image_src": "assets/screenshots/1-private-downloads-page.png"
+		},
+		{
+			"id": "files-links-and-keys",
+			"title": "Files, links and keys on any product",
+			"description": "Upload into your own S3, R2, B2 or Wasabi bucket, or link to any https page. Set download limits and an access period for each product.",
+			"image_src": "assets/screenshots/2-files-links-and-keys.png"
+		},
+		{
+			"id": "control-every-order",
+			"title": "Stay in control of every order",
+			"description": "Resend the downloads email, reset counts, or extend or revoke access from the order. Cancellations and full refunds revoke access too.",
+			"image_src": "assets/screenshots/3-control-every-order.png"
+		},
+		{
+			"id": "license-keys",
+			"title": "License keys your software can check",
+			"description": "Generate keys or sell your own, with activation limits and expiry. Orders stop when imported keys run out, and an API checks each key.",
+			"image_src": "assets/screenshots/4-license-keys.png"
+		}
+	]
 }
