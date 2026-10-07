@@ -44,7 +44,7 @@ Each product's **Digital delivery** tab lists its files and links. A link can go
 4. Choose **Actions → Test connection** to check the key works.
 5. On a product, choose **Actions → Upload files**. Drop in a file, give it a name, and upload. To replace an existing file, choose it under **Upload as**.
 
-Files go straight from your browser to your bucket, so large files are fine. The secret key is stored as plain text in your store's settings, where admins can see it.
+Files go straight from your browser to your bucket, so large files are fine. The settings page masks the secret key, but admins can show it.
 
 ### Selling license keys
 
@@ -84,7 +84,7 @@ Canceling an order or refunding it in full revokes access automatically. For a p
 | Access period (days) | Days after purchase that downloads stay available. Empty means no limit |
 | Low key warning | Admins are emailed when a product has this many imported keys left. Defaults to 10 |
 | Endpoint | The bucket's S3 API endpoint. Empty for Amazon S3 |
-| Region | The bucket's region, or `auto` for Cloudflare R2 |
+| Region | The bucket's region, or `auto` for Cloudflare R2. Defaults to `auto` |
 | Bucket | The bucket's name |
 | Folder | The folder uploads go into. Defaults to `digital-downloads/` |
 | Access key ID, Secret access key | The key the app uploads and signs downloads with |

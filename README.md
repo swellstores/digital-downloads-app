@@ -24,7 +24,7 @@ Uploaded files go straight from your browser to your own S3-compatible bucket: A
 2. Add a CORS rule to the bucket that allows `PUT` from your dashboard (`https://<store-id>.swell.store`) and exposes the `ETag` header.
 3. Fill in **File storage** in the app settings: the endpoint (leave it empty for Amazon S3), region, bucket, folder and access key. Save, then choose **Actions → Test connection**.
 
-The secret key is stored as plain text in your store's settings, where your admins can see it, so use a key limited to that folder.
+The settings page masks the secret key, but your admins can show it, so use a key limited to that folder.
 
 ## Selling license keys
 
