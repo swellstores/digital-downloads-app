@@ -3,7 +3,7 @@
 	"id": "digital_downloads",
 	"name": "Digital Downloads",
 	"type": "admin",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"support_email": "support@swell.is",
 	"documentation_url": "https://developers.swell.is/app-guides/digital-downloads",
 	"price": 0,
