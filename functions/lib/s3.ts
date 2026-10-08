@@ -2,7 +2,8 @@
  * S3-compatible storage (Amazon S3, Cloudflare R2, Backblaze B2, Wasabi).
  *
  * Shared by the functions (presigned downloads) and the frontend uploader
- * (multipart uploads), so it must not use Swell function globals.
+ * (multipart uploads relayed through its worker), so it must not use Swell
+ * function globals.
  */
 import { AwsClient } from "aws4fetch";
 
@@ -32,9 +33,6 @@ export const DEFAULT_PREFIX = "digital-downloads/";
 
 /** Download links stop working after this many seconds. */
 export const DOWNLOAD_URL_SECONDS = 300;
-
-/** Upload part URLs stay valid long enough for a slow connection. */
-export const UPLOAD_URL_SECONDS = 3600;
 
 /** S3 allows at most 10,000 parts, so 16 MiB parts cap uploads at about 160 GB. */
 export const PART_SIZE = 16 * 1024 * 1024;
@@ -136,20 +134,6 @@ export function presignDownload(
   return presign(bucket, "GET", url, seconds);
 }
 
-export function presignUploadPart(
-  bucket: Bucket,
-  key: string,
-  uploadId: string,
-  partNumber: number,
-  seconds = UPLOAD_URL_SECONDS,
-): Promise<string> {
-  const url = new URL(objectUrl(bucket, key));
-  url.searchParams.set("partNumber", String(partNumber));
-  url.searchParams.set("uploadId", uploadId);
-
-  return presign(bucket, "PUT", url, seconds);
-}
-
 export class StorageError extends Error {
   constructor(
     message: string,
@@ -165,6 +149,14 @@ async function send(
   url: string,
   init: RequestInit & { method: string },
 ): Promise<string> {
+  return (await sendForResponse(bucket, url, init)).text;
+}
+
+async function sendForResponse(
+  bucket: Bucket,
+  url: string,
+  init: RequestInit & { method: string },
+): Promise<{ text: string; headers: Headers }> {
   const response = await bucket.client.fetch(url, init);
   const text = await response.text();
 
@@ -180,7 +172,7 @@ async function send(
     );
   }
 
-  return text;
+  return { text, headers: response.headers };
 }
 
 export async function createMultipartUpload(
@@ -230,6 +222,36 @@ export async function completeMultipartUpload(
     headers: { "Content-Type": "application/xml" },
     body,
   });
+}
+
+/**
+ * Uploads one part of a multipart upload and returns its ETag. The payload
+ * isn't hashed into the signature, which HTTPS makes unnecessary and which
+ * would cost CPU time on every 16 MiB part.
+ */
+export async function uploadPart(
+  bucket: Bucket,
+  key: string,
+  uploadId: string,
+  partNumber: number,
+  body: ArrayBuffer,
+): Promise<string> {
+  const url = new URL(objectUrl(bucket, key));
+  url.searchParams.set("partNumber", String(partNumber));
+  url.searchParams.set("uploadId", uploadId);
+
+  const { headers } = await sendForResponse(bucket, url.toString(), {
+    method: "PUT",
+    headers: { "X-Amz-Content-Sha256": "UNSIGNED-PAYLOAD" },
+    body,
+  });
+  const etag = headers.get("ETag");
+
+  if (!etag) {
+    throw new StorageError("The bucket didn't return an ETag for the part", 502);
+  }
+
+  return etag;
 }
 
 export async function abortMultipartUpload(

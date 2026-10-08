@@ -1,8 +1,7 @@
 /**
- * The uploader page. Plain HTML and browser JS: the browser PUTs file parts
- * directly to the bucket using URLs this worker presigns, reads each part's
- * ETag (the bucket's CORS rules must expose it), then asks the worker to
- * finish the upload and save the deliverable.
+ * The uploader page. Plain HTML and browser JS: the browser PUTs each file
+ * part to this worker, which passes it on to the bucket and returns its ETag,
+ * then asks the worker to finish the upload and save the deliverable.
  */
 export function uploaderPage(): string {
   return `<!doctype html>
@@ -50,7 +49,7 @@ li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:
     <label class="drop" id="drop">
       <input type="file" id="file">
       <strong id="drop-label">Choose a file or drag it here</strong>
-      <div class="muted" id="drop-hint">Files go straight to your bucket. Large files are fine.</div>
+      <div class="muted" id="drop-hint">Files go to your bucket. Large files are fine.</div>
     </label>
 
     <label class="field" for="target">Upload as</label>
@@ -157,27 +156,26 @@ li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:
   function choose(selected) {
     file = selected || null;
     $("drop-label").textContent = file ? file.name : "Choose a file or drag it here";
-    $("drop-hint").textContent = file ? formatSize(file.size) : "Files go straight to your bucket. Large files are fine.";
+    $("drop-hint").textContent = file ? formatSize(file.size) : "Files go to your bucket. Large files are fine.";
     $("start").disabled = !file;
     setMessage("");
   }
 
-  function putPart(url, blob, onProgress) {
+  function putPart(started, partNumber, blob, onProgress) {
     return new Promise(function (resolve, reject) {
       var xhr = new XMLHttpRequest();
-      xhr.open("PUT", url);
+      var query = new URLSearchParams({ key: started.key, upload_id: started.upload_id, part_number: String(partNumber) });
+      xhr.open("PUT", api + "/uploads/part?" + query);
       xhr.upload.onprogress = function (event) { onProgress(event.loaded); };
       xhr.onload = function () {
-        var etag = xhr.getResponseHeader("ETag");
-        if (xhr.status < 200 || xhr.status >= 300) {
-          return reject(new Error("The bucket rejected a part (" + xhr.status + ")"));
+        var data = {};
+        try { data = JSON.parse(xhr.responseText); } catch (e) {}
+        if (xhr.status < 200 || xhr.status >= 300 || !data.etag) {
+          return reject(new Error(data.error || ("A part didn't upload (" + xhr.status + ")")));
         }
-        if (!etag) {
-          return reject(new Error("The bucket didn't expose the ETag header. Add ETag to the CORS rule's exposed headers."));
-        }
-        resolve(etag);
+        resolve(data.etag);
       };
-      xhr.onerror = function () { reject(new Error("Couldn't reach the bucket. Add a CORS rule to it that allows PUT from " + location.origin + " and exposes the ETag header.")); };
+      xhr.onerror = function () { reject(new Error("The upload was interrupted. Check your connection and try again.")); };
       xhr.onabort = function () { reject(new Error("Canceled")); };
       upload.requests.push(xhr);
       xhr.send(blob);
@@ -220,36 +218,16 @@ li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:
       var count = Math.max(1, Math.ceil(current.size / started.part_size));
       var queue = [];
       for (var n = 1; n <= count; n++) queue.push(n);
-      var urls = {};
       var parts = [];
-      var fetching = Promise.resolve();
-
-      // One batch request at a time, each covering this part and the next ones queued
-      function urlFor(partNumber) {
-        var next = fetching.catch(function () {}).then(function () {
-          if (urls[partNumber]) return;
-          var batch = [partNumber].concat(queue).filter(function (n, i, all) {
-            return !urls[n] && all.indexOf(n) === i;
-          }).slice(0, 50);
-          return request("POST", "/uploads/parts", {
-            key: state.key, upload_id: state.upload_id, part_numbers: batch
-          }).then(function (result) {
-            for (var key in result.urls) urls[key] = result.urls[key];
-          });
-        });
-        fetching = next;
-        return next.then(function () { return urls[partNumber]; });
-      }
 
       function send(partNumber, attempt) {
         var begin = (partNumber - 1) * state.part_size;
         var blob = current.slice(begin, Math.min(begin + state.part_size, current.size));
-        return urlFor(partNumber).then(function (url) {
-          return putPart(url, blob, function (bytes) { loaded[partNumber] = bytes; progress(); });
+        return putPart(state, partNumber, blob, function (bytes) {
+          loaded[partNumber] = bytes; progress();
         }).catch(function (err) {
           if (upload.canceled || attempt >= RETRIES) throw err;
           loaded[partNumber] = 0;
-          delete urls[partNumber];
           return new Promise(function (resolve) { setTimeout(resolve, 1000 * attempt); })
             .then(function () { return send(partNumber, attempt + 1); });
         });
@@ -281,11 +259,12 @@ li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:
         content_type: current.type || "application/octet-stream"
       });
     }).then(function () {
+      // Clearing the chosen file clears the message, so it goes first
+      $("name").value = "";
+      choose(null);
       setMessage(replaceId
         ? "Replaced. Buyers' existing links now download the new file."
         : "Uploaded. Reload the product page to see it under Digital delivery.", "done");
-      $("name").value = "";
-      choose(null);
       return load();
     }).catch(function (err) {
       if (state) request("POST", "/uploads/abort", { key: state.key, upload_id: state.upload_id }).catch(function () {});

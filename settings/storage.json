@@ -1,6 +1,6 @@
 {
   "label": "File storage",
-  "description": "Optional: connect your own S3-compatible bucket to upload files from the dashboard. Files stay private in your bucket, and every download uses a link that expires after 5 minutes. 1. Create a bucket. Cloudflare R2 is the cheapest option because it charges nothing for downloads; Amazon S3, Backblaze B2 and Wasabi also work. 2. Create an access key limited to that bucket and folder, allowing PutObject, GetObject, AbortMultipartUpload and ListMultipartUploadParts. 3. Add a CORS rule to the bucket allowing PUT from the uploader's address and exposing the ETag header. The uploader runs on its own address, like https://<store-id>--<id>--app.swell.store, and shows the exact one if the rule is missing. 4. Fill in the fields below, save, then choose Actions → Test connection.",
+  "description": "Optional: connect your own S3-compatible bucket to upload files from the dashboard. Files stay private in your bucket, and every download uses a link that expires after 5 minutes. 1. Create a bucket. Cloudflare R2 is the cheapest option because it charges nothing for downloads; Amazon S3, Backblaze B2 and Wasabi also work. 2. Create an access key limited to that bucket and folder, allowing PutObject, GetObject, AbortMultipartUpload and ListMultipartUploadParts. 3. Fill in the fields below, save, then choose Actions → Test connection.",
   "actions": [
     {
       "id": "test_connection",

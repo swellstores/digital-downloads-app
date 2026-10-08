@@ -39,12 +39,11 @@ Each product's **Digital delivery** tab lists its files and links. A link can go
 ### Uploading files
 
 1. Create a bucket, and an access key limited to one folder of it, allowing `PutObject`, `GetObject`, `AbortMultipartUpload` and `ListMultipartUploadParts`.
-2. Add a CORS rule to the bucket that allows `PUT` from the uploader's address and exposes the `ETag` header. The uploader runs on its own address, like `https://<store-id>--<id>--app.swell.store`. If the rule is missing, the uploader shows the exact address to add.
-3. Under **File storage** in the app settings, fill in the endpoint (empty for Amazon S3), region (`auto` for Cloudflare R2), bucket, folder and access key, and save.
-4. Choose **Actions → Test connection** to check the key works.
-5. On a product, choose **Actions → Upload files**. Drop in a file, give it a name, and upload. To replace an existing file, choose it under **Upload as**.
+2. Under **File storage** in the app settings, fill in the endpoint (empty for Amazon S3), region (`auto` for Cloudflare R2), bucket, folder and access key, and save.
+3. Choose **Actions → Test connection** to check the key works.
+4. On a product, choose **Actions → Upload files**. Drop in a file, give it a name, and upload. To replace an existing file, choose it under **Upload as**.
 
-Files go straight from your browser to your bucket, so large files are fine. The settings page masks the secret key, but admins can show it.
+Files upload to your bucket in 16 MB parts, so large files are fine, and the bucket needs no CORS rule. The settings page masks the secret key, but admins can show it.
 
 ### Selling license keys
 
@@ -104,7 +103,6 @@ Canceling an order or refunding it in full revokes access automatically. For a p
 | The buyer didn't get an email | Check the order is paid. Choose **Actions → Resend downloads email** on the order |
 | "This link isn't valid" | The link is incomplete. Resend the downloads email from the order |
 | "This download isn't set up correctly" | The link doesn't start with `https://`, or the bucket settings are missing. Check the deliverable and **File storage** |
-| Uploads fail with a CORS or ETag message | The bucket's CORS rule must allow `PUT` from the address the uploader shows and expose the `ETag` header |
 | An order is missing license keys | The imported keys ran out. Import more, then resend the downloads email from the order |
 | A buyer has used all their downloads | Choose **Actions → Reset download counts** on the order |
 

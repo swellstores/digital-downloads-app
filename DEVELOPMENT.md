@@ -9,7 +9,7 @@
 | `settings/` | Delivery defaults, license key warning level, and file storage. |
 | `notifications/` | Downloads ready (orders), Download updated (grants) and License keys running low (products, admins). Each is sent only by the app with `$notify`; `conditions: {id: null}` stops automatic sends. |
 | `functions/` | Event handlers, the public downloads page and license API, admin actions and the update-email sweep. Shared code is in `functions/lib/`. |
-| `frontend/` | The uploader: a Hono worker shown in the dashboard. The browser uploads straight to the merchant's bucket with presigned multipart URLs. |
+| `frontend/` | The uploader: a Hono worker shown in the dashboard. The browser sends 16 MiB parts to the worker, which signs them and passes them on to the merchant's bucket, so buckets need no CORS rule. The dashboard proxy streams request bodies, and each part stays well under Workers' 100 MB request limit. |
 | `test/` | Vitest unit tests, run in workerd against an in-memory fake of the Swell API (`test/helpers/fake-swell.ts`). |
 | `docs/app-guide.md` | Draft of the developers.swell.is app guide. |
 | `design/listing/` | Sources for the App Store icon, cover and gallery images. `sh design/listing/render.sh` rebuilds them into `assets/` with headless Chrome. |

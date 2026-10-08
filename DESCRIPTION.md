@@ -3,7 +3,7 @@ Sell ebooks, courses, music, templates, software and anything else people downlo
 Add files and links to any product, or to a single variant, and buyers get them the moment the order is paid. Free orders work too.
 
 - **Your files stay private.** Buyers never see where a file really lives. Every download goes through their downloads page, which checks the order is still paid and within its limits before sending them on, and uploaded files get a link that expires after 5 minutes.
-- **Links or your own storage.** Sell links to Dropbox, Google Drive, Vimeo, Notion or any other site, or upload files from your dashboard into your own Amazon S3, Cloudflare R2, Backblaze B2 or Wasabi bucket. Large files are fine: uploads go straight to your bucket.
+- **Links or your own storage.** Sell links to Dropbox, Google Drive, Vimeo, Notion or any other site, or upload files from your dashboard into your own Amazon S3, Cloudflare R2, Backblaze B2 or Wasabi bucket. Large files are fine: they upload in parts, with no bucket CORS setup.
 - **Limits you choose.** Set how many downloads each purchase allows and for how many days, for the whole store or per product.
 - **License keys.** Generate a key for each purchase, or sell keys you import. Limit how many devices a key works on, make keys expire, and stop sales when your imported keys run out. Your software checks keys with a simple API.
 - **Subscriptions.** Downloads for a subscription product stay available while the subscription is active, and pause when it isn't.

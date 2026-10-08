@@ -5,7 +5,7 @@ import {
   objectUrl,
   openBucket,
   presignDownload,
-  presignUploadPart,
+  uploadPart,
 } from "../../functions/lib/s3";
 import { STORAGE } from "../helpers/fixtures";
 
@@ -54,12 +54,30 @@ describe("presigned URLs", () => {
     expect(url.searchParams.get("response-content-disposition")).toContain('filename="Course (2026).zip"');
   });
 
-  it("signs upload parts for one upload id", async () => {
-    const url = new URL(await presignUploadPart(openBucket(STORAGE)!, "k/file.bin", "upload-123", 7));
+  it("sends an upload part unhashed and returns its ETag", async () => {
+    const bucket = openBucket(STORAGE)!;
+    let sent: Request | null = null;
+    bucket.client.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      sent = await bucket.client.sign(input as string, init);
+      return new Response("", { status: 200, headers: { ETag: '"abc123"' } });
+    }) as typeof bucket.client.fetch;
 
+    const etag = await uploadPart(bucket, "k/file.bin", "upload-123", 7, new Uint8Array(5).buffer);
+    const url = new URL(sent!.url);
+
+    expect(etag).toBe('"abc123"');
+    expect(sent!.method).toBe("PUT");
     expect(url.searchParams.get("partNumber")).toBe("7");
     expect(url.searchParams.get("uploadId")).toBe("upload-123");
-    expect(url.searchParams.get("X-Amz-Expires")).toBe("3600");
+    expect(sent!.headers.get("x-amz-content-sha256")).toBe("UNSIGNED-PAYLOAD");
+    expect(sent!.headers.get("authorization")).toMatch(/^AWS4-HMAC-SHA256 /);
+  });
+
+  it("fails a part the bucket accepted without an ETag", async () => {
+    const bucket = openBucket(STORAGE)!;
+    bucket.client.fetch = (async () => new Response("", { status: 200 })) as typeof bucket.client.fetch;
+
+    await expect(uploadPart(bucket, "k/file.bin", "upload-123", 1, new Uint8Array(1).buffer)).rejects.toThrow("ETag");
   });
 });
 

@@ -1,8 +1,10 @@
 /**
  * Uploader for files buyers download, embedded in the Swell dashboard.
  *
- * The page uploads straight from the browser to the store's own bucket with
- * presigned multipart URLs, so file size isn't limited by Swell or this worker.
+ * The browser sends each 16 MiB part to this worker, which signs it and passes
+ * it on to the store's own bucket as a multipart upload. Relaying means buckets
+ * need no CORS rule, and splitting into parts keeps every request well under
+ * the 100 MB request limit, so file size isn't limited.
  * Every API route requires a signed-in admin, proven by the Swell-Context the
  * proxy signs: the proxy injects app credentials into every request, including
  * ones that never came from the dashboard.
@@ -15,8 +17,8 @@ import {
   newObjectKey,
   openBucket,
   PART_SIZE,
-  presignUploadPart,
   StorageError,
+  uploadPart,
   type Bucket,
   type StorageSettings,
 } from "../../functions/lib/s3";
@@ -41,9 +43,6 @@ class HttpError extends Error {
 
 const OBJECT_ID = /^[0-9a-f]{24}$/i;
 
-// Presigned part URLs are handed out in batches as the upload needs them
-const MAX_PARTS_PER_REQUEST = 50;
-
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 /**
@@ -54,7 +53,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>();
 app.all("*", async (c) => {
   const path = new URL(c.req.url).pathname;
   const api = path.match(
-    /\/uploader-api\/(products\/[0-9a-f]{24}|uploads(?:\/parts|\/complete|\/abort)?)$/i,
+    /\/uploader-api\/(products\/[0-9a-f]{24}|uploads(?:\/part|\/complete|\/abort)?)$/i,
   )?.[1];
 
   if (!api) {
@@ -70,22 +69,28 @@ app.all("*", async (c) => {
       return c.json(await getProduct(swell, api.slice("products/".length)));
     }
 
-    if (c.req.method !== "POST") {
+    // Parts are sent as the raw request body; everything else is JSON
+    const isPart = api === "uploads/part";
+
+    if (c.req.method !== (isPart ? "PUT" : "POST")) {
       throw new HttpError("Method not allowed", 405);
     }
 
-    const body = await c.req.json().catch(() => ({}));
     const bucket = openBucket(await getStorage(swell));
 
     if (!bucket) {
       throw new HttpError("Connect a bucket in the app's File storage settings first", 400);
     }
 
+    if (isPart) {
+      return c.json(await relayPart(c, bucket));
+    }
+
+    const body = await c.req.json().catch(() => ({}));
+
     switch (api) {
       case "uploads":
         return c.json(await startUpload(swell, bucket, body));
-      case "uploads/parts":
-        return c.json(await signParts(bucket, body));
       case "uploads/complete":
         return c.json(await finishUpload(swell, bucket, body));
       case "uploads/abort":
@@ -221,26 +226,28 @@ async function startUpload(swell: Swell, bucket: Bucket, body: any) {
   };
 }
 
-async function signParts(bucket: Bucket, body: any) {
-  const key = requireKey(body.key);
-  const uploadId = requireString(body.upload_id, "upload_id");
-  const partNumbers: unknown[] = Array.isArray(body.part_numbers) ? body.part_numbers : [];
+async function relayPart(c: Context, bucket: Bucket) {
+  const query = new URL(c.req.url).searchParams;
+  const key = requireKey(query.get("key"));
+  const uploadId = requireString(query.get("upload_id"), "upload_id");
+  const partNumber = Number(query.get("part_number"));
 
-  if (partNumbers.length === 0 || partNumbers.length > MAX_PARTS_PER_REQUEST) {
-    throw new HttpError(`Ask for 1 to ${MAX_PARTS_PER_REQUEST} parts at a time`, 400);
+  if (!Number.isInteger(partNumber) || partNumber < 1 || partNumber > 10_000) {
+    throw new HttpError("Part numbers must be between 1 and 10000", 400);
   }
 
-  const urls: Record<number, string> = {};
-
-  for (const partNumber of partNumbers) {
-    if (typeof partNumber !== "number" || !Number.isInteger(partNumber) || partNumber < 1 || partNumber > 10_000) {
-      throw new HttpError("Part numbers must be between 1 and 10000", 400);
-    }
-
-    urls[partNumber] = await presignUploadPart(bucket, key, uploadId, partNumber);
+  // Only this app's upload folder can be written to
+  if (!key.startsWith(bucket.prefix)) {
+    throw new HttpError("Invalid key", 400);
   }
 
-  return { urls };
+  const body = await c.req.arrayBuffer();
+
+  if (body.byteLength === 0 || body.byteLength > PART_SIZE) {
+    throw new HttpError(`Each part must be between 1 byte and ${PART_SIZE} bytes`, 400);
+  }
+
+  return { etag: await uploadPart(bucket, key, uploadId, partNumber, body) };
 }
 
 async function finishUpload(swell: Swell, bucket: Bucket, body: any) {
