@@ -4,11 +4,11 @@
   "fields": [
     {
       "id": "low_stock_threshold",
-      "label": "Low key warning",
+      "label": "Low stock alert for imported keys",
       "type": "integer",
       "min": 0,
       "default": 10,
-      "description": "Email store admins when a product has this many imported keys left. Sales stop when a product runs out."
+      "description": "When a product has this many unsold imported keys left, store admins get an email to import more. Checkout stops selling a product when its imported keys run out. Doesn't apply to generated keys."
     }
   ]
 }

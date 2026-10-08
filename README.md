@@ -2,7 +2,7 @@
 
 Sell files, links and license keys with Swell. After someone pays, they get an email and a private downloads page with everything they bought. You decide how many times each item can be downloaded and for how long, and you can change or remove access from the order at any time.
 
-**Buyers never see where your files really live.** Every download goes through the downloads page, which checks the order is still paid and within its limits, counts the download, and only then sends the buyer on. Uploaded files get a link that stops working after 5 minutes, so a shared link is soon useless.
+**Buyers never see where your files really live.** Every download goes through the downloads page, which checks the order hasn't been canceled or refunded and is within its limits, counts the download, and only then sends the buyer on. Uploaded files get a link that stops working after 5 minutes, so a shared link is soon useless.
 
 ## Works with any storefront
 
@@ -28,7 +28,7 @@ The settings page masks the secret key, but your admins can show it, so use a ke
 ## Selling license keys
 
 - **Generated keys** are created at purchase, one per unit bought, using the key format on the product.
-- **Imported keys** come from a list you paste in with **Actions → Import license keys**. They can be for any variant or for one variant only. When a product runs out, orders for it are stopped at checkout, and store admins get an email when the keys left reach the **Low key warning** level.
+- **Imported keys** come from a list you paste in with **Actions → Import license keys**. They can be for any variant or for one variant only. When a product runs out, orders for it are stopped at checkout, and store admins get an email when the keys left reach the **Low stock alert for imported keys** level.
 - Set **Activations per key** to limit how many devices or sites a key works on, and **Key valid for** to make keys expire.
 
 Your software can check keys with the license API: `validate`, `activate` and `deactivate`. See the app guide for details.
@@ -49,7 +49,7 @@ The **Digital delivery** tab on each order shows its downloads link, what the bu
 
 ## Showing downloads in your theme
 
-Each order's downloads link is available to the customer who placed it, as `$app.digital_downloads.downloads_url`, for example on an order history page. For a full downloads section, your theme can call `swell.functions.get("digital_downloads", "account-downloads")` for the signed-in customer's orders, items and keys. Link the download buttons to each order's downloads page, which checks and counts every download.
+Each order's downloads link is available to the customer who placed it, as `$app.digital_downloads.downloads_url`, for example on an order history page. For a full downloads section, your theme can call `swell.functions.get("digital_downloads", "account-downloads")` for the signed-in customer's orders, items and keys. Link the download buttons to each order's downloads page, which checks and counts every download. The account route always includes the link, even on the rare order where another app's update dropped the order field.
 
 ## Things worth knowing
 

@@ -8,7 +8,7 @@ Digital Downloads lets you sell files, links and license keys in your Swell stor
 |---|---|
 | An order is paid, or placed for free | Gives each digital item its access, issues license keys, and emails the buyer a link to their downloads page |
 | The buyer opens the downloads page | Lists their files, links and keys, with downloads left and the access period. Opening the page doesn't count as a download |
-| The buyer chooses Download or Open | Checks the order is paid and not refunded, and that the item is within its limits. Counts and logs the download, then sends the buyer to the file (through a link that expires after 5 minutes) or to the link |
+| The buyer chooses Download or Open | Checks the order isn't canceled or refunded, and that the item is within its limits. Counts and logs the download, then sends the buyer to the file (through a link that expires after 5 minutes) or to the link |
 | The order is canceled or fully refunded | Removes access and stops its license keys validating |
 | A subscription is paused or canceled | Pauses access to the subscription's downloads until it's active again |
 | You replace a file or edit a link | Every past buyer's downloads page uses the new version |
@@ -49,8 +49,8 @@ Files upload to your bucket in 16 MB parts, so large files are fine, and the buc
 
 Turn on **Give buyers a license key** on a product, then choose where keys come from:
 
-- **Generate a random key for each purchase.** Each X in **Key format** becomes a random letter or digit; use at least 16.
-- **Use keys I import.** Choose **Actions → Import license keys** and paste one key per line, for any variant or one variant. Orders are stopped at checkout when a product runs out. Store admins get an email when the keys left reach the **Low key warning** level, and if an order is left without keys.
+- **Generate a random key for each purchase.** Each X in **Key format** becomes a random letter or digit. Use at least 16 Xs; a shorter format falls back to the default, `XXXXX-XXXXX-XXXXX-XXXXX`.
+- **Use keys I import.** Choose **Actions → Import license keys** and paste one key per line, for any variant or one variant. Orders are stopped at checkout when a product runs out. Store admins get an email when the keys left reach the **Low stock alert for imported keys** level, and if an order is left without keys.
 
 **Activations per key** limits how many devices or sites a key works on. **Key valid for (days)** makes keys expire. One key is issued per unit bought.
 
@@ -81,7 +81,7 @@ Canceling an order or refunding it in full revokes access automatically. For a p
 |---|---|
 | Downloads per item | Downloads allowed for each file or link in a purchase. Empty means unlimited |
 | Access period (days) | Days after purchase that downloads stay available. Empty means no limit |
-| Low key warning | Admins are emailed when a product has this many imported keys left. Defaults to 10 |
+| Low stock alert for imported keys | Admins are emailed to import more when a product has this many unsold imported keys left. Defaults to 10. Generated keys never run out |
 | Endpoint | The bucket's S3 API address. The region is read from it. Empty means Amazon S3 in us-east-1 |
 | Bucket | The bucket's name |
 | Folder | The folder uploads go into. Defaults to `digital-downloads/` |
@@ -111,7 +111,7 @@ Uninstalling stops new orders getting access, and existing downloads links stop 
 
 ## For developers
 
-**Order fields.** `$app.digital_downloads.downloads_url` is the order's private downloads page, readable by the customer who placed the order through the storefront API. `access_status` is `granted` or `revoked`.
+**Order fields.** `$app.digital_downloads.downloads_url` is the order's private downloads page, readable by the customer who placed the order through the storefront API. `access_status` is `granted` or `revoked`. If another app saves the order at the same moment, these order fields can be missing; the account route below always returns the link.
 
 **Account route.** `GET /functions/digital_downloads/account-downloads`, called with `swell.functions.get("digital_downloads", "account-downloads")`, returns the signed-in customer's orders with their items, downloads left and license keys. Link download buttons to the order's `downloads_url`.
 
