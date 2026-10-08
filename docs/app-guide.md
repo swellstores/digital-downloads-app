@@ -39,7 +39,7 @@ Each product's **Digital delivery** tab lists its files and links. A link can go
 ### Uploading files
 
 1. Create a bucket, and an access key limited to one folder of it, allowing `PutObject`, `GetObject`, `AbortMultipartUpload` and `ListMultipartUploadParts`.
-2. Under **File storage** in the app settings, fill in the endpoint (empty for Amazon S3), region (`auto` for Cloudflare R2), bucket, folder and access key, and save.
+2. Under **File storage** in the app settings, fill in the endpoint (like `https://s3.us-west-2.amazonaws.com`; the region is read from it), bucket, folder and access key, and save.
 3. Choose **Actions → Test connection** to check the key works.
 4. On a product, choose **Actions → Upload files**. Drop in a file, give it a name, and upload. To replace an existing file, choose it under **Upload as**.
 
@@ -82,8 +82,7 @@ Canceling an order or refunding it in full revokes access automatically. For a p
 | Downloads per item | Downloads allowed for each file or link in a purchase. Empty means unlimited |
 | Access period (days) | Days after purchase that downloads stay available. Empty means no limit |
 | Low key warning | Admins are emailed when a product has this many imported keys left. Defaults to 10 |
-| Endpoint | The bucket's S3 API endpoint. Empty for Amazon S3 |
-| Region | The bucket's region, or `auto` for Cloudflare R2. Defaults to `auto` |
+| Endpoint | The bucket's S3 API address. The region is read from it. Empty means Amazon S3 in us-east-1 |
 | Bucket | The bucket's name |
 | Folder | The folder uploads go into. Defaults to `digital-downloads/` |
 | Access key ID, Secret access key | The key the app uploads and signs downloads with |

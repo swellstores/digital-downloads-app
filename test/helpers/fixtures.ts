@@ -17,7 +17,6 @@ export const STORE = {
 
 export const STORAGE = {
   endpoint: "https://acct.r2.cloudflarestorage.com",
-  region: "auto",
   bucket: "downloads",
   prefix: "digital-downloads/",
   access_key_id: "AKIDEXAMPLE",

@@ -1,6 +1,6 @@
 {
   "label": "File storage",
-  "description": "Optional: connect your own S3-compatible bucket to upload files from the dashboard. Files stay private in your bucket, and every download uses a link that expires after 5 minutes. 1. Create a bucket. Cloudflare R2 is the cheapest option because it charges nothing for downloads; Amazon S3, Backblaze B2 and Wasabi also work. 2. Create an access key limited to that bucket and folder, allowing PutObject, GetObject, AbortMultipartUpload and ListMultipartUploadParts. 3. Fill in the fields below, save, then choose Actions → Test connection.",
+  "description": "Optional. Connect your own bucket in Cloudflare R2, Amazon S3, Backblaze B2 or Wasabi to upload files from a product's Actions menu. Files stay private, and each download gets a link that expires after 5 minutes. After saving, choose Actions → Test connection.",
   "actions": [
     {
       "id": "test_connection",
@@ -21,41 +21,45 @@
       "label": "Endpoint",
       "type": "url",
       "placeholder": "https://<account-id>.r2.cloudflarestorage.com",
-      "description": "The S3 API endpoint. Leave empty for Amazon S3."
+      "description": "Your bucket's S3 API address, like https://s3.us-west-2.amazonaws.com. The region is read from it. Leave empty for Amazon S3 in us-east-1."
     },
     {
-      "id": "region",
-      "label": "Region",
-      "type": "text",
-      "default": "auto",
-      "admin_span": 2,
-      "description": "For example us-east-1. Use auto for Cloudflare R2."
+      "type": "field_row",
+      "fields": [
+        {
+          "id": "bucket",
+          "label": "Bucket",
+          "type": "text",
+          "admin_span": 2
+        },
+        {
+          "id": "prefix",
+          "label": "Folder",
+          "type": "text",
+          "default": "digital-downloads/",
+          "description": "Uploads go into this folder of the bucket.",
+          "admin_span": 2
+        }
+      ]
     },
     {
-      "id": "bucket",
-      "label": "Bucket",
-      "type": "text",
-      "admin_span": 2
-    },
-    {
-      "id": "prefix",
-      "label": "Folder",
-      "type": "text",
-      "default": "digital-downloads/",
-      "description": "Uploads go into this folder of the bucket. Limit your access key to it."
-    },
-    {
-      "id": "access_key_id",
-      "label": "Access key ID",
-      "type": "text",
-      "admin_span": 2
-    },
-    {
-      "id": "secret_access_key",
-      "label": "Secret access key",
-      "type": "secret",
-      "admin_span": 2,
-      "description": "Stored as plain text in your store's settings, so use a key that can only reach this bucket folder."
+      "type": "field_row",
+      "fields": [
+        {
+          "id": "access_key_id",
+          "label": "Access key ID",
+          "type": "text",
+          "admin_span": 2,
+          "description": "Limit the key to this bucket and folder, allowing PutObject, GetObject, AbortMultipartUpload and ListMultipartUploadParts."
+        },
+        {
+          "id": "secret_access_key",
+          "label": "Secret access key",
+          "type": "secret",
+          "admin_span": 2,
+          "description": "Masked here, but admins can show it."
+        }
+      ]
     }
   ]
 }

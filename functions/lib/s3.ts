@@ -9,7 +9,6 @@ import { AwsClient } from "aws4fetch";
 
 export interface StorageSettings {
   endpoint?: string | null;
-  region?: string | null;
   bucket?: string | null;
   prefix?: string | null;
   access_key_id?: string | null;
@@ -42,12 +41,7 @@ export function openBucket(storage: StorageSettings): Bucket | null {
     return null;
   }
 
-  const endpoint = storage.endpoint?.trim().replace(/\/+$/, "") || null;
-  const configured = storage.region?.trim();
-
-  // Amazon S3 needs a real region; R2 accepts "auto"
-  const region =
-    configured && configured !== "auto" ? configured : endpoint ? "auto" : "us-east-1";
+  const { endpoint, region } = locate(storage.endpoint);
 
   return {
     client: new AwsClient({
@@ -61,6 +55,32 @@ export function openBucket(storage: StorageSettings): Bucket | null {
     prefix: normalizePrefix(storage.prefix ?? DEFAULT_PREFIX),
     endpoint,
   };
+}
+
+/**
+ * The region comes from the endpoint, so merchants don't have to enter it.
+ * Amazon S3 endpoints (s3.<region>.amazonaws.com) become virtual-hosted URLs,
+ * and an empty endpoint means Amazon S3 in us-east-1. Backblaze B2 and Wasabi
+ * name the region in the host too. Anything else, like Cloudflare R2, signs
+ * with "auto".
+ */
+function locate(value?: string | null): { endpoint: string | null; region: string } {
+  const endpoint = value?.trim().replace(/\/+$/, "") || null;
+
+  if (!endpoint) {
+    return { endpoint: null, region: "us-east-1" };
+  }
+
+  const host = endpoint.replace(/^https?:\/\//i, "").split("/")[0].toLowerCase();
+  const aws = host.match(/^s3[.-](?:dualstack\.)?([a-z0-9-]+)\.amazonaws\.com$/);
+
+  if (aws) {
+    return { endpoint: null, region: aws[1] };
+  }
+
+  const named = host.match(/^s3\.([a-z0-9-]+)\.(?:backblazeb2|wasabisys)\.com$/);
+
+  return { endpoint, region: named?.[1] ?? "auto" };
 }
 
 function normalizePrefix(prefix?: string | null): string {

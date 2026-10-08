@@ -21,9 +21,17 @@ describe("openBucket", () => {
     expect(openBucket({ ...STORAGE, prefix: null })!.prefix).toBe("digital-downloads/");
   });
 
-  it("defaults Amazon S3 to us-east-1, since it has no auto region", () => {
-    expect(openBucket({ ...STORAGE, endpoint: "", region: "auto" })!.region).toBe("us-east-1");
-    expect(openBucket({ ...STORAGE, region: "" })!.region).toBe("auto");
+  it("reads the region from the endpoint", () => {
+    const region = (endpoint: string | null) => openBucket({ ...STORAGE, endpoint })!;
+
+    expect(region("")).toMatchObject({ endpoint: null, region: "us-east-1" });
+    expect(region("https://acct.r2.cloudflarestorage.com")).toMatchObject({ region: "auto" });
+    expect(region("https://s3.eu-west-1.amazonaws.com/")).toMatchObject({ endpoint: null, region: "eu-west-1" });
+    expect(region("https://s3.us-west-004.backblazeb2.com")).toMatchObject({
+      endpoint: "https://s3.us-west-004.backblazeb2.com",
+      region: "us-west-004",
+    });
+    expect(region("https://s3.eu-central-2.wasabisys.com")).toMatchObject({ region: "eu-central-2" });
   });
 });
 
@@ -35,7 +43,7 @@ describe("objectUrl", () => {
   });
 
   it("uses virtual-hosted URLs for Amazon S3", () => {
-    const bucket = openBucket({ ...STORAGE, endpoint: null, region: "eu-west-1" })!;
+    const bucket = openBucket({ ...STORAGE, endpoint: "https://s3.eu-west-1.amazonaws.com" })!;
 
     expect(objectUrl(bucket, "x/y.pdf")).toBe("https://downloads.s3.eu-west-1.amazonaws.com/x/y.pdf");
   });

@@ -21,7 +21,7 @@ The app adds no storefront of its own and needs none. The downloads page and ema
 Uploaded files are stored in your own S3-compatible bucket: Amazon S3, Cloudflare R2, Backblaze B2 or Wasabi. They upload in 16 MB parts, so file size isn't limited, and the bucket needs no CORS rule. Cloudflare R2 is the cheapest choice for downloads because it doesn't charge for them.
 
 1. Create a bucket, and an access key that can only reach one folder of it, allowing `PutObject`, `GetObject`, `AbortMultipartUpload` and `ListMultipartUploadParts`.
-2. Fill in **File storage** in the app settings: the endpoint (leave it empty for Amazon S3), region, bucket, folder and access key. Save, then choose **Actions → Test connection**.
+2. Fill in **File storage** in the app settings: the endpoint (like `https://s3.us-west-2.amazonaws.com`; the region is read from it), bucket, folder and access key. Save, then choose **Actions → Test connection**.
 
 The settings page masks the secret key, but your admins can show it, so use a key limited to that folder.
 
