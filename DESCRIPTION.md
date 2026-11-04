@@ -1,6 +1,6 @@
 Sell ebooks, courses, music, templates, software and anything else people download, straight from your Swell store. After someone pays, they get an email and a private downloads page with everything they bought, and you stay in control of how long and how often they can use it.
 
-Add files and links to any product, or to a single variant, and buyers get them the moment the order is paid. Free orders work too.
+Add files and links to any product, or to a single variant, and buyers get them after the order is paid. Free orders work too.
 
 - **Your files stay private.** Buyers never see where a file really lives. Every download goes through their downloads page, which checks the order is still paid and within its limits before sending them on, and uploaded files get a link that expires after 5 minutes.
 - **Links or your own storage.** Sell links to Dropbox, Google Drive, Vimeo, Notion or any other site, or upload files from your dashboard into your own Amazon S3, Cloudflare R2, Backblaze B2 or Wasabi bucket. Large files are fine: they upload in parts, with no bucket CORS setup.
