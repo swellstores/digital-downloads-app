@@ -9,6 +9,13 @@
     "id": null
   },
   "subject": "{% if missing > 0 %}Order {{ order_number }} is missing license keys{% else %}{{ name }} has {{ available }} license keys left{% endif %}",
+  "content": {
+    "html": {
+      "content_type": "text/plain",
+      "private": true,
+      "data": "{%-\n  # Sent by the app with $notify. Besides the product's own fields, the app passes:\n  #   available: unused imported keys left\n  #   missing: keys an order is still owed because the pool ran out\n  #   order_number: that order, when missing > 0\n-%}\n<!doctype html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\n\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <style type=\"text/css\">\n    body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }\n    p { display: block; margin: 0 0 13px 0; }\n  </style>\n</head>\n\n<body style=\"word-spacing:normal;\">\n  <div>\n    {%- if missing > 0 -%}\n      <p>Order {{ order_number }} was paid, but {{ missing }} license {% if missing == 1 %}key{% else %}keys{% endif %} couldn't be assigned because <a href=\"{{ store.admin_url }}/products/{{ id }}\">{{ name | escape }}</a> ran out of imported keys.</p>\n      <p>Import more keys on the product (Actions &rarr; Import license keys), then open the order and choose Actions &rarr; Resend downloads email to give the buyer their keys.</p>\n    {%- else -%}\n      <p><a href=\"{{ store.admin_url }}/products/{{ id }}\">{{ name | escape }}</a> has {{ available }} imported license {% if available == 1 %}key{% else %}keys{% endif %} left.</p>\n      <p>When it runs out, orders for it are stopped at checkout. Import more keys from the product's Actions menu.</p>\n    {%- endif -%}\n  </div>\n</body>\n\n</html>\n"
+    }
+  },
   "sample": {
     "id": "5f8f8c1b2c3d4e5f60718111",
     "name": "Pro Plugin",

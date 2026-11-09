@@ -9,8 +9,17 @@
   },
   "contact": "account.email",
   "subject": "Your downloads from {{ store.name }} are ready",
+  "content": {
+    "html": {
+      "content_type": "text/plain",
+      "private": true,
+      "data": "{%-\n  # Sent by the app with $notify. Besides the order's own fields, the app passes:\n  #   downloads_url: the buyer's private downloads page\n  #   downloads: [{ product_name, variant_name, deliverables: [{ name, version }], license_keys: [string] }]\n-%}\n<!doctype html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\n\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <style type=\"text/css\">\n    body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; background: #f6f6f4; }\n    p { margin: 0 0 14px 0; }\n  </style>\n</head>\n\n<body style=\"word-spacing:normal;background:#f6f6f4;\">\n  <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f6f6f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:32px 16px;\">\n        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:560px;background:#ffffff;border-radius:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1d1d1b;font-size:16px;line-height:1.5;\">\n          <tr>\n            <td style=\"padding:32px 32px 8px 32px;\">\n              {%- if store.logo.url -%}\n                <img src=\"{{ store.logo.url }}\" alt=\"{{ store.name | escape }}\" width=\"{{ store.logo_width | default: 120 }}\" style=\"display:block;border:0;max-width:200px;height:auto;margin-bottom:24px;\">\n              {%- else -%}\n                <p style=\"font-size:18px;font-weight:600;margin-bottom:24px;\">{{ store.name | escape }}</p>\n              {%- endif -%}\n              <p style=\"font-size:22px;font-weight:600;margin-bottom:8px;\">Your downloads are ready</p>\n              <p style=\"color:#6b6b66;\">Order {{ number }}</p>\n              <p>{{ content.intro | escape }}</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:8px 32px 24px 32px;\">\n              <a href=\"{{ downloads_url }}\" style=\"display:inline-block;background:{{ store.color | default: '#1d1d1b' }};color:#ffffff;text-decoration:none;font-weight:600;padding:12px 24px;border-radius:8px;\">Get your downloads</a>\n            </td>\n          </tr>\n          {%- for item in downloads -%}\n            <tr>\n              <td style=\"padding:16px 32px;border-top:1px solid #e4e4df;\">\n                <p style=\"font-weight:600;margin-bottom:4px;\">{{ item.product_name | escape }}{% if item.variant_name %} <span style=\"color:#6b6b66;font-weight:400;\">{{ item.variant_name | escape }}</span>{% endif %}</p>\n                {%- for deliverable in item.deliverables -%}\n                  <p style=\"color:#6b6b66;font-size:14px;margin:0 0 4px 0;\">{{ deliverable.name | escape }}{% if deliverable.version %} &middot; v{{ deliverable.version | escape }}{% endif %}</p>\n                {%- endfor -%}\n                {%- if item.license_keys.size > 0 -%}\n                  <p style=\"font-size:14px;color:#6b6b66;margin:12px 0 6px 0;\">{% if item.license_keys.size == 1 %}License key{% else %}License keys{% endif %}</p>\n                  {%- for key in item.license_keys -%}\n                    <p style=\"font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;background:#f6f6f4;border:1px solid #e4e4df;border-radius:8px;padding:8px 12px;margin:0 0 6px 0;\">{{ key | escape }}</p>\n                  {%- endfor -%}\n                {%- endif -%}\n              </td>\n            </tr>\n          {%- endfor -%}\n          <tr>\n            <td style=\"padding:16px 32px 32px 32px;border-top:1px solid #e4e4df;color:#6b6b66;font-size:14px;\">\n              <p>Keep this email. The button above is how you get back to your downloads, so don't share it.</p>\n              {%- if store.support_email -%}\n                <p style=\"margin:0;\">Questions? Email <a href=\"mailto:{{ store.support_email }}\" style=\"color:#6b6b66;\">{{ store.support_email }}</a>.</p>\n              {%- endif -%}\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n\n</html>\n"
+    }
+  },
   "query": {
-    "expand": ["account"]
+    "expand": [
+      "account"
+    ]
   },
   "fields": [
     {
@@ -33,10 +42,18 @@
         "product_name": "Photography Masterclass",
         "variant_name": "Complete edition",
         "deliverables": [
-          { "name": "Course videos", "version": null },
-          { "name": "Lightroom presets", "version": "2.1" }
+          {
+            "name": "Course videos",
+            "version": null
+          },
+          {
+            "name": "Lightroom presets",
+            "version": "2.1"
+          }
         ],
-        "license_keys": ["7KQ2M-XW9PD-3HT8N-R4VBC"]
+        "license_keys": [
+          "7KQ2M-XW9PD-3HT8N-R4VBC"
+        ]
       }
     ]
   }

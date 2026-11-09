@@ -9,6 +9,13 @@
   },
   "contact": "account.email",
   "subject": "A new version of {{ product_name }} is available",
+  "content": {
+    "html": {
+      "content_type": "text/plain",
+      "private": true,
+      "data": "{%-\n  # Sent by the app with $notify on a grant (a buyer's access to one order item).\n  # Besides the grant's fields and its expanded order, the app passes:\n  #   product_name, message (optional), downloads_url\n-%}\n<!doctype html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\n\n<head>\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <style type=\"text/css\">\n    body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; background: #f6f6f4; }\n    p { margin: 0 0 14px 0; }\n  </style>\n</head>\n\n<body style=\"word-spacing:normal;background:#f6f6f4;\">\n  <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f6f6f4;\">\n    <tr>\n      <td align=\"center\" style=\"padding:32px 16px;\">\n        <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:560px;background:#ffffff;border-radius:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1d1d1b;font-size:16px;line-height:1.5;\">\n          <tr>\n            <td style=\"padding:32px;\">\n              <p style=\"font-size:18px;font-weight:600;margin-bottom:24px;\">{{ store.name | escape }}</p>\n              <p style=\"font-size:22px;font-weight:600;margin-bottom:8px;\">A new version of {{ product_name | escape }} is available</p>\n              {%- if message -%}\n                <p style=\"white-space:pre-line;\">{{ message | escape }}</p>\n              {%- endif -%}\n              <p>Your downloads page already has the latest files.</p>\n              <p style=\"margin:24px 0;\">\n                <a href=\"{{ downloads_url }}\" style=\"display:inline-block;background:{{ store.color | default: '#1d1d1b' }};color:#ffffff;text-decoration:none;font-weight:600;padding:12px 24px;border-radius:8px;\">Get the update</a>\n              </p>\n              <p style=\"color:#6b6b66;font-size:14px;margin:0;\">You're getting this because you bought {{ product_name | escape }} in order {{ order.number }}.</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n\n</html>\n"
+    }
+  },
   "query": {
     "expand": [
       "account",

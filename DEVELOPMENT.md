@@ -7,7 +7,7 @@
 | `models/` | `products.json` and `orders.json` extend the standard models under `$app.digital_downloads`. `grants` (one buyer's access to one order item), `license-keys`, `download-events` (the download log) and `notify-jobs` (queued update emails) are the app's own collections. |
 | `content/` | The product and order **Digital delivery** tabs, their actions, and the list pages. |
 | `settings/` | Delivery defaults, license key warning level, and file storage. |
-| `notifications/` | Downloads ready (orders), Download updated (grants) and License keys running low (products, admins). Each is sent only by the app with `$notify`; `conditions: {id: null}` stops automatic sends. |
+| `notifications/` | Downloads ready (orders), Download updated (grants) and License keys running low (products, admins). Each is sent only by the app with `$notify`; `conditions: {id: null}` stops automatic sends. The email body is inline in each JSON file (`content.html.data`), not a separate `.tpl`: a store installing a version creates the notification from the `.json` and `.tpl` configs at the same time, and the `.tpl` loses, leaving a blank body. |
 | `functions/` | Event handlers, the public downloads page and license API, admin actions and the update-email sweep. Shared code is in `functions/lib/`. |
 | `frontend/` | The uploader: a Hono worker shown in the dashboard. The browser sends 16 MiB parts to the worker, which signs them and passes them on to the merchant's bucket, so buckets need no CORS rule. The dashboard proxy streams request bodies, and each part stays well under Workers' 100 MB request limit. |
 | `test/` | Vitest unit tests, run in workerd against an in-memory fake of the Swell API (`test/helpers/fake-swell.ts`). |
