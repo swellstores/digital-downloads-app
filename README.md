@@ -62,3 +62,7 @@ Each order's downloads link is available to the customer who placed it, as `$app
 ## Support
 
 Email [support@swell.is](mailto:support@swell.is).
+
+## License
+
+MIT. See [LICENSE](LICENSE). Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).

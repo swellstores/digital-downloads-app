@@ -1,5 +1,6 @@
 {
 	"description": "Sell files, links and license keys",
+	"repository_url": "https://github.com/swellstores/digital-downloads-app",
 	"id": "digital_downloads",
 	"name": "Digital Downloads",
 	"type": "admin",
