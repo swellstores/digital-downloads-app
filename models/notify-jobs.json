@@ -1,5 +1,5 @@
 {
-  "description": "A queued 'new version available' email to everyone who bought a product. The notify-sweep cron sends it in batches.",
+  "description": "A queued 'new version available' email to everyone who bought a product. notify-batch sends it in batches on a schedule.",
   "label": "Update email",
   "plural": "Update emails",
   "fields": {
@@ -39,6 +39,20 @@
     },
     "date_completed": {
       "type": "date"
+    },
+    "date_next_batch": {
+      "type": "date",
+      "description": "When the next batch goes out. Cleared when the job is done"
     }
+  },
+  "events": {
+    "types": [
+      {
+        "id": "created"
+      },
+      {
+        "id": "updated"
+      }
+    ]
   }
 }

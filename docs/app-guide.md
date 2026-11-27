@@ -92,7 +92,7 @@ Canceling an order or refunding it in full revokes access automatically. For a p
 - After a buyer opens a link, they can see its address, as with any link. Use uploaded files for anything you want to keep private.
 - Each file or link belongs to every variant or to one variant.
 - Downloads links open the live environment, so links for test-mode orders won't open in a browser.
-- Update emails go out at about 30 every 5 minutes.
+- Update emails go out at about 30 a minute.
 - Activation limits are checked as each activation is recorded, so two activations at the same instant can go one over the limit.
 
 ## Troubleshooting

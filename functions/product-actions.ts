@@ -34,6 +34,8 @@ export default async function (req: SwellRequest) {
         message: message.slice(0, 2000) || null,
         reset_counts: req.data.reset_counts === true,
         status: "pending",
+        // Due now: the first batch goes out right away
+        date_next_batch: new Date().toISOString(),
       });
 
       return { message: "Update emails will go out to past buyers over the next few minutes." };

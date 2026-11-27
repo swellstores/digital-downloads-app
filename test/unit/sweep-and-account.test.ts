@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { get as accountDownloads } from "../../functions/account-downloads";
+import notifyBatch, { BATCH_INTERVAL_MS } from "../../functions/notify-batch";
 import notifySweep from "../../functions/notify-sweep";
 import { APP_ID, createFakeSwell } from "../helpers/fake-swell";
 import { PATHS, request, seedGrantedOrder, seedProduct } from "../helpers/fixtures";
 
-describe("notify-sweep", () => {
+describe("notify-batch", () => {
   function seedBuyers(fake: ReturnType<typeof createFakeSwell>, productId: string, count: number) {
     return Array.from({ length: count }, () => {
       const { order, grant } = seedGrantedOrder(fake, productId, { grant: { download_counts: { x: 2 } } });
@@ -20,9 +21,9 @@ describe("notify-sweep", () => {
     const revoked = seedGrantedOrder(fake, product.id, { grant: { status: "revoked" } });
     const job = fake.seed(PATHS.jobs, { product_id: product.id, message: "v2 is out", reset_counts: true, status: "pending", sent_count: 0 });
 
-    await notifySweep(request(fake));
+    await notifyBatch(request(fake, { data: { id: job.id } }));
 
-    expect(fake.find(PATHS.jobs, job.id)).toMatchObject({ status: "done", sent_count: 30 });
+    expect(fake.find(PATHS.jobs, job.id)).toMatchObject({ status: "done", sent_count: 30, date_next_batch: null });
 
     const emailed = fake.notifications.map((note) => note.path);
     expect(new Set(emailed).size).toBe(30);
@@ -44,22 +45,52 @@ describe("notify-sweep", () => {
     seedBuyers(fake, product.id, 120);
     const job = fake.seed(PATHS.jobs, { product_id: product.id, status: "pending", sent_count: 0 });
 
-    await notifySweep(request(fake));
-    expect(fake.find(PATHS.jobs, job.id)).toMatchObject({ status: "pending", sent_count: 100 });
+    const before = Date.now();
+    await notifyBatch(request(fake, { data: { id: job.id } }));
+    const afterFirst = fake.find(PATHS.jobs, job.id)!;
+    expect(afterFirst).toMatchObject({ status: "pending", sent_count: 100 });
+    // The next batch is scheduled a minute out
+    expect(Date.parse(afterFirst.date_next_batch)).toBeGreaterThanOrEqual(before + BATCH_INTERVAL_MS);
 
-    await notifySweep(request(fake));
-    expect(fake.find(PATHS.jobs, job.id)).toMatchObject({ status: "done", sent_count: 120 });
+    await notifyBatch(request(fake, { data: { id: job.id } }));
+    expect(fake.find(PATHS.jobs, job.id)).toMatchObject({ status: "done", sent_count: 120, date_next_batch: null });
 
     const emailed = fake.notifications.map((note) => note.path);
     expect(emailed).toHaveLength(120);
     expect(new Set(emailed).size).toBe(120);
   });
 
-  it("does nothing without a pending job", async () => {
+  it("does nothing for a job that is already done", async () => {
     const fake = createFakeSwell();
+    const { product } = seedProduct(fake, { name: "Presets" });
+    seedBuyers(fake, product.id, 3);
+    const job = fake.seed(PATHS.jobs, { product_id: product.id, status: "done", sent_count: 3 });
 
+    await notifyBatch(request(fake, { data: { id: job.id } }));
+
+    expect(fake.notifications).toHaveLength(0);
+    expect(fake.find(PATHS.jobs, job.id)).toMatchObject({ status: "done", sent_count: 3 });
+  });
+});
+
+describe("notify-sweep", () => {
+  it("restarts pending jobs whose batch is overdue or was never scheduled", async () => {
+    const fake = createFakeSwell();
+    const { product } = seedProduct(fake);
+    const overdue = fake.seed(PATHS.jobs, { product_id: product.id, status: "pending", date_next_batch: new Date(Date.now() - 60 * 60 * 1000).toISOString() });
+    const legacy = fake.seed(PATHS.jobs, { product_id: product.id, status: "pending" });
+    const dueSoon = new Date(Date.now() + 60 * 1000).toISOString();
+    const onTime = fake.seed(PATHS.jobs, { product_id: product.id, status: "pending", date_next_batch: dueSoon });
+    const done = fake.seed(PATHS.jobs, { product_id: product.id, status: "done", date_next_batch: null });
+
+    const before = Date.now();
     await notifySweep(request(fake));
 
+    for (const job of [overdue, legacy]) {
+      expect(Date.parse(fake.find(PATHS.jobs, job.id)!.date_next_batch)).toBeGreaterThanOrEqual(before);
+    }
+    expect(fake.find(PATHS.jobs, onTime.id)!.date_next_batch).toBe(dueSoon);
+    expect(fake.find(PATHS.jobs, done.id)!.date_next_batch).toBeNull();
     expect(fake.notifications).toHaveLength(0);
   });
 });

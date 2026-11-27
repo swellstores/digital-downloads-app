@@ -150,7 +150,9 @@ describe("product actions", () => {
     );
 
     expect(fake.all(PATHS.jobs)).toMatchObject([
-      { product_id: product.id, message: "New presets", reset_counts: true, status: "pending" },
+      { product_id: product.id, message: "New presets", reset_counts: true, status: "pending", date_next_batch: expect.any(String) },
     ]);
+    // Due now, so the first batch goes out right away
+    expect(Date.parse(fake.all(PATHS.jobs)[0].date_next_batch)).toBeLessThanOrEqual(Date.now());
   });
 });

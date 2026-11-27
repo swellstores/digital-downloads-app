@@ -8,7 +8,7 @@
 | `content/` | The product and order **Digital delivery** tabs, their actions, and the list pages. |
 | `settings/` | Delivery defaults, license key warning level, and file storage. |
 | `notifications/` | Downloads ready (orders), Download updated (grants) and License keys running low (products, admins). Each is sent only by the app with `$notify`; `conditions: {id: null}` stops automatic sends. The email body is inline in each JSON file (`content.html.data`), not a separate `.tpl`: a store installing a version creates the notification from the `.json` and `.tpl` configs at the same time, and the `.tpl` loses, leaving a blank body. |
-| `functions/` | Event handlers, the public downloads page and license API, admin actions and the update-email sweep. Shared code is in `functions/lib/`. |
+| `functions/` | Event handlers, the public downloads page and license API, admin actions, and the update-email batches (`notify-batch`, run on the notify job's `date_next_batch` schedule, with a 6-hourly `notify-sweep` that restarts a lost one). Shared code is in `functions/lib/`. |
 | `frontend/` | The uploader: a Hono worker shown in the dashboard. The browser sends 16 MiB parts to the worker, which signs them and passes them on to the merchant's bucket, so buckets need no CORS rule. The dashboard proxy streams request bodies, and each part stays well under Workers' 100 MB request limit. |
 | `test/` | Vitest unit tests, run in workerd against an in-memory fake of the Swell API (`test/helpers/fake-swell.ts`). |
 | `docs/app-guide.md` | Draft of the developers.swell.is app guide. |
@@ -38,7 +38,7 @@ swell app push
 - **Query strings.** Function GET queries are sent as query strings, so `null` becomes the string `"null"` and matches nothing. Match missing fields with `$exists: false`, and leave optional ids out of writes instead of setting them to null. The test fake rejects null in queries.
 - **`$inc` is the only safe claim.** `unique` is checked before insert, not enforced by an index. Pool keys are claimed by applying `$inc` to `claims`; only the caller that gets back 1 owns the key.
 - **Order writes are expensive.** Each one runs the order's formulas and every installed app's `order.updated` handlers. A notification only goes out with a write that changes the record, so the downloads email is sent in the same write that stores the link, and update emails are sent from grants rather than orders.
-- **Functions time out after 10 seconds**, and a Worker opens at most 6 connections at once. The order handler loads in parallel and grants items and keys side by side; the update-email sweep stops starting sends after 5 seconds and saves its place.
+- **Functions time out after 10 seconds**, and a Worker opens at most 6 connections at once. The order handler loads in parallel and grants items and keys side by side; each update-email batch stops starting sends after 5 seconds, saves its place and schedules the next batch a minute later.
 - **The uploader checks `Swell-Context`.** The dashboard proxy signs it as an ES256 JWT from `https://swell.store` (keys at `/.well-known/jwks.json`), and its `admin` claim is set only for a signed-in admin. The `_swell_admin_session` cookie that older docs describe can't be checked with an app's token, and the proxy marks it as temporary.
 - **Installed apps start with empty settings.** Defaults in `settings/*.json` only show in the form, so the code applies them when a value is unset.
 

@@ -57,7 +57,7 @@ Each order's downloads link is available to the customer who placed it, as `$app
 - **Links are only as private as where they point.** After a buyer opens a link, they can see its address, as with any link. Use uploaded files for anything you want to protect.
 - **One variant per file or link.** To include a file with two of a product's variants, add it once for each.
 - **Links in test mode.** Downloads links open your store's live environment, so links for test-mode orders won't open in a browser. Check test orders from the order's Digital delivery tab instead.
-- **Update emails go out in batches** of about 30 every 5 minutes.
+- **Update emails go out in batches** of about 30 a minute.
 
 ## Support
 
