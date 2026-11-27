@@ -4,7 +4,7 @@
     "@cloudflare/vitest-pool-workers": "^0.22.0",
     "@swell/app-types": "^1.2.0",
     "typescript": "^5.9.3",
-    "vitest": "~4.1.11"
+    "vitest": "~4.1.12"
   },
   "name": "digital_downloads",
   "license": "MIT",
